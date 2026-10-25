@@ -1,0 +1,4 @@
+/.venv
+.env
+.gitignore
+/src/doniczka_ai_server/__pycache__
