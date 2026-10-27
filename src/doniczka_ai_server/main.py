@@ -28,6 +28,18 @@ async def root():
     pass
 
 
+@app.get("/devices/{id}")
+def get_device(id: int):
+    controller: DeviceController = DeviceController.get_instance()
+
+    device: Device = controller.get_device(id)
+
+    return {
+        "status": "success",
+        "data": {"device": DeviceResponse.model_validate(device)},
+    }
+
+
 @app.post("/devices")
 def store_device(device_data: DeviceCreate):
     controller: DeviceController = DeviceController.get_instance()
@@ -37,4 +49,28 @@ def store_device(device_data: DeviceCreate):
     return {
         "status": "success",
         "data": {"device": DeviceResponse.model_validate(device)},
+    }
+
+
+@app.patch("/devices/{id}")
+def update_device(id: int, device_data: DeviceCreate):
+    controller: DeviceController = DeviceController.get_instance()
+
+    device: Device = controller.update_device(id, device_data)
+
+    return {
+        "status": "success",
+        "data": {"device": DeviceResponse.model_validate(device)},
+    }
+
+
+@app.delete("/devices/{id}")
+def delete_device(id: int):
+    controller: DeviceController = DeviceController.get_instance()
+
+    controller.delete_device(id)
+
+    return {
+        "status": "success",
+        "message": f"Device with id {id} has been deleted.",
     }
