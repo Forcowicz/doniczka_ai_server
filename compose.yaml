@@ -15,11 +15,29 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      eclipse-mosquito:
+      eclipse-mosquitto:
+        condition: service_healthy
+  mqtt-subscriber:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: /app/.venv/bin/python -u mqtt_subscriber.py
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - MQTT_BROKER_HOST
+      - MQTT_BROKER_PORT
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eclipse-mosquitto:
         condition: service_healthy
 
   postgres:
-    image: postgres:18.6-alpine3.24
+    image: timescale/timescaledb-ha:pg18
     volumes:
       - db-data:/var/lib/postgresql/18/docker
     environment:
@@ -34,16 +52,29 @@ services:
       timeout: 5s
       retries: 5
 
-  eclipse-mosquito:
+  eclipse-mosquitto:
     image: eclipse-mosquitto
     ports:
-      - "${EM_PORT}:1883"
+      - "${MQTT_BROKER_PORT}:1883"
+      - "9001:9001"
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
       - mosquitto-data:/mosquitto/data
       - mosquitto-log:/mosquitto/log
     healthcheck:
-      test: ["CMD", "mosquitto_pub", "-p", "1883", "-t", "healthcheck", "-m", "ping", "-q", "1"]
+      test:
+        [
+          "CMD",
+          "mosquitto_pub",
+          "-p",
+          "1883",
+          "-t",
+          "healthcheck",
+          "-m",
+          "ping",
+          "-q",
+          "1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 3
