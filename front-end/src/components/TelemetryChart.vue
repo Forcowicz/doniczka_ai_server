@@ -9,8 +9,7 @@ import {
   GridComponent,
 } from "echarts/components";
 import VChart, { THEME_KEY } from "vue-echarts";
-import { computed, provide, ref } from "vue";
-import type { TelemetryEntry } from "..";
+import { computed, provide } from "vue";
 
 use([
   CanvasRenderer,
@@ -24,24 +23,43 @@ use([
 
 provide(THEME_KEY, "light");
 
+type DataSeries = {
+  title: string;
+  series: number[];
+};
+
 const props = defineProps<{
-  entries: TelemetryEntry[];
+  seriesName: string;
+  unit: string;
+  timestamps: string[];
+  entries: DataSeries[];
 }>();
 
-const timeFormatter = new Intl.DateTimeFormat("pl-PL", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
 const option = computed(() => {
-  const timestamps = props.entries.map(e =>
-    timeFormatter.format(new Date(e.timestamp)),
-  );
-  const temperatures = props.entries.map(e => e.temperature);
+  const isMultiSeries = props.entries.length > 1;
+
+  const series = props.entries.map(e => {
+    return {
+      name: e.title,
+      data: e.series,
+      type: "line",
+      smooth: true,
+      showSymbol: false,
+      emphasis: {
+        focus: "series",
+      },
+      areaStyle: isMultiSeries ? undefined : {},
+    };
+  });
 
   return {
     tooltip: {
       trigger: "axis",
+    },
+    legend: {
+      data: props.entries.map(e => e.title),
+      top: "top",
+      right: "4%",
     },
     grid: {
       left: "3%",
@@ -52,25 +70,17 @@ const option = computed(() => {
     xAxis: {
       type: "category",
       boundaryGap: false,
-      data: timestamps,
+      data: props.timestamps,
     },
     yAxis: {
       type: "value",
-      name: "Temp (°C)",
+      name: props.unit,
     },
-    series: [
-      {
-        name: "Temperatura",
-        data: temperatures,
-        type: "line",
-        smooth: true,
-        areaStyle: {},
-      },
-    ],
+    series,
   };
 });
 </script>
 
 <template>
-  <VChart class="chart" :option="option" :autoresize="true" />
+  <VChart :option="option" :autoresize="true" class="w-full h-full" />
 </template>

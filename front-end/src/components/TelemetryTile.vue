@@ -24,12 +24,6 @@ const props = defineProps<{
       >
         <component :is="props.icon" class="h-5 w-5" aria-hidden="true" />
       </div>
-
-      <span
-        class="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400"
-      >
-        Sensor
-      </span>
     </div>
 
     <div>

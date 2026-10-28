@@ -2,13 +2,13 @@
 import { computed, onMounted, ref, type Ref } from "vue";
 import { deviceService } from "./services/deviceService.ts";
 import type { Device, TelemetryEntry } from "./index";
-import TelemetryChart from "./components/TelemetryChart.vue";
 import { telemetryService } from "./services/telemetryService.ts";
 import TelemetryTile from "./components/TelemetryTile.vue";
 import EventLog from "./components/EventLog.vue";
 import PlantOverview from "./components/PlantOverview.vue";
 import DataStatus from "./components/DataStatus.vue";
 import { Droplets, Sun, Thermometer } from "@lucide/vue";
+import TelemetryOverview from "./components/TelemetryOverview.vue";
 
 const device: Ref<Device | undefined> = ref(undefined);
 const telemetryEntries: Ref<TelemetryEntry[]> = ref([]);
@@ -71,7 +71,7 @@ const latestLightIntensity = computed(
       </div>
 
       <div class="grid grid-cols-[75%_1fr] gap-12">
-        <TelemetryChart
+        <TelemetryOverview
           :entries="telemetryEntries"
           class="h-full w-full border rounded-lg border-gray-200"
         />
