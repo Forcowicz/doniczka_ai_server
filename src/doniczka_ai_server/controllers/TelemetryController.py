@@ -1,3 +1,6 @@
+from ast import List
+from collections.abc import Sequence
+
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
@@ -27,6 +30,12 @@ class TelemetryController:
         if cls._instance is None:
             raise ControllerNotInstantiatedException()
         return cls._instance
+
+    def get_all(self, device_id: int) -> Sequence[Telemetry]:
+        stmt = select(Telemetry).where(Telemetry.device_id == device_id)
+
+        with Session(self.db_client, expire_on_commit=False) as session:
+            return session.scalars(stmt).all()
 
     def store_telemetry(self, telemetry_data: TelemetryCreate):
         telemetry = Telemetry(**telemetry_data.model_dump())

@@ -1,12 +1,14 @@
 import os
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from doniczka_ai_server.controllers import DeviceController
+from fastapi.middleware.cors import CORSMiddleware
+from typing import Sequence
+from doniczka_ai_server.controllers import DeviceController, TelemetryController
 from doniczka_ai_server.database.postgres_client import PostgresClient
 from contextlib import asynccontextmanager
 
 from doniczka_ai_server.initializers import initialize_controllers, initialize_database
-from doniczka_ai_server.models import Device
+from doniczka_ai_server.models import Device, Telemetry
 from doniczka_ai_server.schemas.DeviceSchemas import DeviceCreate, DeviceResponse
 
 
@@ -21,6 +23,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # lub ["*"] na czas lokalnego developmentu
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -73,4 +83,16 @@ def delete_device(id: int):
     return {
         "status": "success",
         "message": f"Device with id {id} has been deleted.",
+    }
+
+
+@app.get("/devices/{id}/telemetry")
+def get_telemetry(id: int):
+    controller: TelemetryController = TelemetryController.get_instance()
+
+    telemetry: Sequence[Telemetry] = controller.get_all(id)
+
+    return {
+        "status": "success",
+        "data": {"telemetry": telemetry},
     }
