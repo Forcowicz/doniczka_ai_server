@@ -19,6 +19,7 @@ dependencies = [
 
 [project.scripts]
 doniczka-ai-server = "doniczka_ai_server:main"
+seed-telemetry = "doniczka_ai_server.database.seed:main"
 
 [build-system]
 requires = ["uv_build>=0.13.5,<0.14.0"]
