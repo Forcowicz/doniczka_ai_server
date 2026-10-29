@@ -1,44 +1,62 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, type Ref } from "vue";
+import { onMounted, ref, type Ref } from "vue";
 import { deviceService } from "./services/deviceService.ts";
-import type { Device, TelemetryEntry } from "./index";
-import { telemetryService } from "./services/telemetryService.ts";
+import type { Device } from "./index";
 import TelemetryTile from "./components/TelemetryTile.vue";
 import EventLog from "./components/EventLog.vue";
 import PlantOverview from "./components/PlantOverview.vue";
 import DataStatus from "./components/DataStatus.vue";
 import { Droplets, Sun, Thermometer } from "@lucide/vue";
 import TelemetryOverview from "./components/TelemetryOverview.vue";
+import StatusTile from "./components/StatusTile.vue";
+import { useTelemetryStore } from "./stores/telemetryStore.ts";
+import { storeToRefs } from "pinia";
 
 const device: Ref<Device | undefined> = ref(undefined);
-const telemetryEntries: Ref<TelemetryEntry[]> = ref([]);
+
+const telemetryStore = useTelemetryStore();
 
 onMounted(async () => {
   const deviceData: Device = await deviceService.getDevice();
-  const telemetryData: TelemetryEntry[] = await telemetryService.getAll(
-    deviceData.id,
-  );
 
   device.value = deviceData;
-  telemetryEntries.value = telemetryData;
+
+  telemetryStore.fetch();
 });
 
-const latestTemp = computed(() => telemetryEntries.value?.at(-1)?.temperature);
-const latestAirHumidity = computed(
-  () => telemetryEntries.value?.at(-1)?.air_humidity,
-);
-const latestLightIntensity = computed(
-  () => telemetryEntries.value?.at(-1)?.light_intensity,
-);
+const {
+  latestTemp,
+  latestAirHumidity,
+  latestLightIntensity,
+  fetchedAt,
+  telemetryEntries,
+} = storeToRefs(telemetryStore);
 </script>
 
 <template>
   <main class="p-12 h-full">
-    <div class="grid grid-rows-2 grid-cols-1 h-full gap-12">
+    <div class="grid grid-rows-[40%_1fr] grid-cols-1 h-full gap-12">
       <div class="grid grid-cols-[60%_1fr] gap-12">
         <div class="grid grid-cols-3 grid-rows-[auto_1fr] gap-8">
-          <div class="flex items-center col-span-3">
-            <DataStatus class="rounded-lg border border-gray-200" />
+          <div class="flex items-center col-span-3 gap-4">
+            <DataStatus
+              :fetched-at="fetchedAt"
+              class="rounded-lg border border-gray-200"
+            />
+            <StatusTile
+              status="good"
+              title="Poziom wody"
+              good-status-text="OK"
+              bad-status-text="Brak"
+              class="rounded-lg border border-gray-200"
+            />
+            <StatusTile
+              status="good"
+              title="Połączenie"
+              good-status-text="OK"
+              bad-status-text="Brak"
+              class="rounded-lg border border-gray-200"
+            />
           </div>
 
           <TelemetryTile
