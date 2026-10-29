@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref, type Ref } from "vue";
-import type { TelemetryEntry } from "..";
+import { TelemetryPeriod, type TelemetryEntry } from "..";
 import { telemetryService } from "../services/telemetryService";
 
 export const useTelemetryStore = defineStore("telemetry", () => {
@@ -10,11 +10,26 @@ export const useTelemetryStore = defineStore("telemetry", () => {
   const isFetching: Ref<boolean> = ref(false);
   const fetchedAt: Ref<Date> = ref(new Date());
 
-  async function fetch() {
+  async function fetchLatest() {
     try {
       isFetching.value = true;
 
-      telemetryEntries.value = await telemetryService.getAll(deviceId);
+      telemetryEntries.value = await telemetryService.getAll(deviceId); // Limit
+      fetchedAt.value = new Date();
+    } catch (e: any) {
+      console.error(e);
+    } finally {
+      isFetching.value = false;
+    }
+  }
+
+  async function fetch(period: TelemetryPeriod = TelemetryPeriod.DAY) {
+    try {
+      isFetching.value = true;
+
+      telemetryEntries.value = await telemetryService.getAll(deviceId, {
+        period,
+      });
       fetchedAt.value = new Date();
     } catch (e: any) {
       console.error(e);

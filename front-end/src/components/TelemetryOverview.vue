@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed, ref, type Ref } from "vue";
-import type { TelemetryEntry } from "..";
+import { computed, ref, watch, type Ref } from "vue";
+import { TelemetryPeriod, type TelemetryEntry } from "..";
 import TelemetryChart from "./TelemetryChart.vue";
 import Dropdown, { type DropdownOption } from "./ui/Dropdown.vue";
+import { useTelemetryStore } from "../stores/telemetryStore.ts";
 
 const props = defineProps<{
   entries: TelemetryEntry[];
 }>();
+
+const telemetryStore = useTelemetryStore();
 
 type MetricKey =
   | "temperature"
@@ -15,12 +18,20 @@ type MetricKey =
   | "light intensity";
 
 const selectedMetric: Ref<MetricKey> = ref("temperature");
+const selectedPeriod: Ref<string> = ref(String(TelemetryPeriod.DAY));
 
 const metricOptions: DropdownOption[] = [
   { value: "temperature", label: "Temperatura" },
   { value: "air humidity", label: "Wilgotność powietrza" },
   { value: "soil moisture", label: "Wilgotność gleby" },
   { value: "light intensity", label: "Natężenie światła" },
+];
+
+const periodOptions: DropdownOption[] = [
+  { value: String(TelemetryPeriod.DAY), label: "Dzień" },
+  { value: String(TelemetryPeriod.WEEK), label: "Tydzień" },
+  { value: String(TelemetryPeriod.MONTH), label: "Miesiąc" },
+  { value: String(TelemetryPeriod.YEAR), label: "Rok" },
 ];
 
 const seriesName = computed(() => {
@@ -98,15 +109,28 @@ const timeFormatter = new Intl.DateTimeFormat("pl-PL", {
 const timestamps = props.entries.map(e =>
   timeFormatter.format(new Date(e.timestamp)),
 );
+
+watch(
+  () => selectedPeriod.value,
+  async () => {
+    await telemetryStore.fetch(Number(selectedPeriod.value));
+  },
+);
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
-    <div class="pl-12 pt-4">
+    <div class="flex items-center gap-4 pl-12 pt-4">
       <Dropdown
         v-model="selectedMetric"
         :options="metricOptions"
         aria-label="Wybierz rodzaj pomiaru"
+      />
+
+      <Dropdown
+        v-model="selectedPeriod"
+        :options="periodOptions"
+        aria-label="Wybierz okres pomiaru"
       />
     </div>
 

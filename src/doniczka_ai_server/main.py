@@ -1,8 +1,7 @@
-import os
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.params import Query
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Sequence
+from typing import Annotated, Sequence
 from doniczka_ai_server.controllers import DeviceController, TelemetryController
 from doniczka_ai_server.database.postgres_client import PostgresClient
 from contextlib import asynccontextmanager
@@ -10,6 +9,7 @@ from contextlib import asynccontextmanager
 from doniczka_ai_server.initializers import initialize_controllers, initialize_database
 from doniczka_ai_server.models import Device, Telemetry
 from doniczka_ai_server.schemas.DeviceSchemas import DeviceCreate, DeviceResponse
+from doniczka_ai_server.schemas.TelemetrySchemas import GetAllOptions
 
 
 @asynccontextmanager
@@ -87,10 +87,10 @@ def delete_device(id: int):
 
 
 @app.get("/devices/{id}/telemetry")
-def get_telemetry(id: int):
+def get_telemetry(id: int, options: Annotated[GetAllOptions, Query()]):
     controller: TelemetryController = TelemetryController.get_instance()
 
-    telemetry: Sequence[Telemetry] = controller.get_all(id)
+    telemetry: Sequence[Telemetry] = controller.get_all(id, options)
 
     return {
         "status": "success",

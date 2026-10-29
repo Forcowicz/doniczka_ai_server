@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from doniczka_ai_server.enums.TelemetryEnums import TelemetryPeriod
+
 
 class TelemetryBase(BaseModel):
     device_id: int
@@ -17,3 +19,10 @@ class TelemetryBase(BaseModel):
 
 class TelemetryCreate(TelemetryBase):
     pass
+
+
+# Query parameters
+
+
+class GetAllOptions(BaseModel):
+    period: TelemetryPeriod = TelemetryPeriod.DAY

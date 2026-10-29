@@ -1,4 +1,4 @@
-from ast import List
+from datetime import datetime, timedelta
 from collections.abc import Sequence
 
 from sqlalchemy import Engine, select
@@ -7,9 +7,8 @@ from sqlalchemy.orm import Session
 from doniczka_ai_server.errors.controller_errors import (
     ControllerNotInstantiatedException,
 )
-from doniczka_ai_server.errors.model_errors import InstanceNotFoundException
 from doniczka_ai_server.models import Telemetry
-from doniczka_ai_server.schemas.TelemetrySchemas import TelemetryCreate
+from doniczka_ai_server.schemas.TelemetrySchemas import GetAllOptions, TelemetryCreate
 
 
 class TelemetryController:
@@ -31,8 +30,14 @@ class TelemetryController:
             raise ControllerNotInstantiatedException()
         return cls._instance
 
-    def get_all(self, device_id: int) -> Sequence[Telemetry]:
-        stmt = select(Telemetry).where(Telemetry.device_id == device_id)
+    def get_all(self, device_id: int, options: GetAllOptions) -> Sequence[Telemetry]:
+        stmt = (
+            select(Telemetry)
+            .where(Telemetry.device_id == device_id)
+            .where(
+                Telemetry.timestamp < datetime.now() - timedelta(options.period.value)
+            )
+        )
 
         with Session(self.db_client, expire_on_commit=False) as session:
             return session.scalars(stmt).all()

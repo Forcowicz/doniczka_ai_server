@@ -1,4 +1,4 @@
 from .DeviceSchemas import DeviceCreate
-from .TelemetrySchemas import TelemetryCreate
+from .TelemetrySchemas import TelemetryCreate, GetAllOptions
 
-__all__ = ["DeviceCreate", "TelemetryCreate"]
+__all__ = ["DeviceCreate", "TelemetryCreate", "GetAllOptions"]

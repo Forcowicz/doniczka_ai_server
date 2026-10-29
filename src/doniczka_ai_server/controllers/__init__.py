@@ -1,4 +1,4 @@
 from .DeviceController import DeviceController
-from .TelemetryController import TelemetryController
+from .TelemetryController import TelemetryController, GetAllOptions
 
-__all__ = ["DeviceController", "TelemetryController"]
+__all__ = ["DeviceController", "TelemetryController", "GetAllOptions"]
