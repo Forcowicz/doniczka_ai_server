@@ -21,6 +21,7 @@ onMounted(async () => {
 
   device.value = deviceData;
 
+  telemetryStore.fetchLatest();
   telemetryStore.fetch();
 });
 
@@ -77,7 +78,7 @@ const {
           />
           <TelemetryTile
             title="Naświetlenie"
-            v-if="latestLightIntensity"
+            v-if="isDefined(latestLightIntensity)"
             :value="latestLightIntensity"
             unit="LUX"
             :icon="Sun"

@@ -6,6 +6,7 @@ import { telemetryService } from "../services/telemetryService";
 export const useTelemetryStore = defineStore("telemetry", () => {
   const deviceId = 1;
 
+  const latestEntry: Ref<TelemetryEntry | null> = ref(null);
   const telemetryEntries: Ref<TelemetryEntry[]> = ref([]);
   const isFetching: Ref<boolean> = ref(false);
   const fetchedAt: Ref<Date> = ref(new Date());
@@ -14,7 +15,10 @@ export const useTelemetryStore = defineStore("telemetry", () => {
     try {
       isFetching.value = true;
 
-      telemetryEntries.value = await telemetryService.getAll(deviceId); // Limit
+      const res = await telemetryService.getAll(deviceId, {
+        limit: 1,
+      });
+      latestEntry.value = res[0] || null;
       fetchedAt.value = new Date();
     } catch (e: any) {
       console.error(e);
@@ -38,18 +42,16 @@ export const useTelemetryStore = defineStore("telemetry", () => {
     }
   }
 
-  const latestTemp = computed(
-    () => telemetryEntries.value?.at(-1)?.temperature,
-  );
-  const latestAirHumidity = computed(
-    () => telemetryEntries.value?.at(-1)?.air_humidity,
-  );
+  const latestTemp = computed(() => latestEntry.value?.temperature);
+  const latestAirHumidity = computed(() => latestEntry.value?.air_humidity);
   const latestLightIntensity = computed(
-    () => telemetryEntries.value?.at(-1)?.light_intensity,
+    () => latestEntry.value?.light_intensity,
   );
 
   return {
     fetch,
+    fetchLatest,
+    latestEntry,
     latestTemp,
     latestAirHumidity,
     latestLightIntensity,

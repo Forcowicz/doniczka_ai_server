@@ -26,3 +26,4 @@ class TelemetryCreate(TelemetryBase):
 
 class GetAllOptions(BaseModel):
     period: TelemetryPeriod = TelemetryPeriod.DAY
+    limit: Optional[int] = None

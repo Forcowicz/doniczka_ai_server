@@ -3,6 +3,7 @@ import type { TelemetryPeriod } from "..";
 
 export interface GetAllQueryParams {
   period?: TelemetryPeriod;
+  limit?: number;
 }
 
 export const telemetryService = {
