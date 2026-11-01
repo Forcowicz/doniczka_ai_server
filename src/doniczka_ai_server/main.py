@@ -1,14 +1,23 @@
 from fastapi import FastAPI
-from fastapi.params import Query
+from fastapi.params import Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated, Sequence
-from doniczka_ai_server.controllers import DeviceController, TelemetryController
+from doniczka_ai_server.controllers import (
+    DeviceController,
+    PlantPhotoController,
+    TelemetryController,
+)
 from doniczka_ai_server.database.postgres_client import PostgresClient
 from contextlib import asynccontextmanager
 
-from doniczka_ai_server.initializers import initialize_controllers, initialize_database
+from doniczka_ai_server.initializers import (
+    initialize_controllers,
+    initialize_database,
+    initialize_s3,
+)
 from doniczka_ai_server.models import Device, Telemetry
 from doniczka_ai_server.schemas.DeviceSchemas import DeviceCreate, DeviceResponse
+from doniczka_ai_server.schemas.PlantPhotoSchemas import PlantPhotoCreate
 from doniczka_ai_server.schemas.TelemetrySchemas import GetAllOptions
 
 
@@ -18,6 +27,7 @@ async def lifespan(app: FastAPI):
 
     initialize_database(postgres_client)
     initialize_controllers(postgres_client)
+    initialize_s3()
 
     yield
 
@@ -95,4 +105,19 @@ def get_telemetry(id: int, options: Annotated[GetAllOptions, Query()]):
     return {
         "status": "success",
         "data": {"telemetry": telemetry},
+    }
+
+
+@app.post("/devices/{id}/photos")
+def store_plant_photo(
+    id: int,
+    photo_data: Annotated[PlantPhotoCreate, Form()],
+):
+    controller: PlantPhotoController = PlantPhotoController.get_instance()
+
+    controller.store(id, photo_data)
+
+    return {
+        "status": "success",
+        "message": "Plant photo stored successfully.",
     }

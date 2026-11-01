@@ -7,7 +7,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from doniczka_ai_server.database.schemas import Base
-from doniczka_ai_server.models import Telemetry, Device
+from doniczka_ai_server.models import Telemetry, Device, PlantPhoto
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
