@@ -35,7 +35,11 @@ class PlantPhotoController:
         return cls._instance
 
     def get_all(self, device_id: int, options: GetAllOptions) -> Sequence[PlantPhoto]:
-        stmt = select(PlantPhoto).where(PlantPhoto.device_id == device_id)
+        stmt = (
+            select(PlantPhoto)
+            .where(PlantPhoto.device_id == device_id)
+            .order_by(PlantPhoto.timestamp.desc())
+        )
 
         if options.limit is not None:
             stmt = stmt.limit(options.limit)

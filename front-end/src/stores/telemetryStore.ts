@@ -1,24 +1,54 @@
 import { defineStore } from "pinia";
 import { computed, ref, type Ref } from "vue";
-import { TelemetryPeriod, type TelemetryEntry } from "..";
+import { TelemetryPeriod, type TelemetryEntry, type PlantPhoto } from "..";
 import { telemetryService } from "../services/telemetryService";
+import { plantPhotoService } from "../services/plantPhotoService";
 
 export const useTelemetryStore = defineStore("telemetry", () => {
   const deviceId = 1;
 
   const latestEntry: Ref<TelemetryEntry | null> = ref(null);
+  const latestPhoto: Ref<PlantPhoto | null> = ref(null);
   const telemetryEntries: Ref<TelemetryEntry[]> = ref([]);
   const isFetching: Ref<boolean> = ref(false);
   const fetchedAt: Ref<Date> = ref(new Date());
+
+  async function fetchLatestPhoto() {
+    try {
+      const res = await plantPhotoService.getAll(deviceId, {
+        limit: 1,
+      });
+      latestPhoto.value = res[0] || null;
+    } catch (e: any) {
+      console.error(e);
+    }
+  }
 
   async function fetchLatest() {
     try {
       isFetching.value = true;
 
-      const res = await telemetryService.getAll(deviceId, {
-        limit: 1,
-      });
-      latestEntry.value = res[0] || null;
+      const [telemetryRes, photoRes] = await Promise.allSettled([
+        telemetryService.getAll(deviceId, {
+          limit: 1,
+        }),
+        plantPhotoService.getAll(deviceId, {
+          limit: 1,
+        }),
+      ]);
+
+      if (telemetryRes.status === "fulfilled") {
+        latestEntry.value = telemetryRes.value[0] || null;
+      } else {
+        console.error(telemetryRes.reason);
+      }
+
+      if (photoRes.status === "fulfilled") {
+        latestPhoto.value = photoRes.value[0] || null;
+      } else {
+        console.error(photoRes.reason);
+      }
+
       fetchedAt.value = new Date();
     } catch (e: any) {
       console.error(e);
@@ -51,6 +81,8 @@ export const useTelemetryStore = defineStore("telemetry", () => {
   return {
     fetch,
     fetchLatest,
+    fetchLatestPhoto,
+    latestPhoto,
     latestEntry,
     latestTemp,
     latestAirHumidity,

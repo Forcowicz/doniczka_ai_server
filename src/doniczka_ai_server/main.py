@@ -15,10 +15,14 @@ from doniczka_ai_server.initializers import (
     initialize_database,
     initialize_s3,
 )
-from doniczka_ai_server.models import Device, Telemetry
+from doniczka_ai_server.models import Device, Telemetry, PlantPhoto
 from doniczka_ai_server.schemas.DeviceSchemas import DeviceCreate, DeviceResponse
-from doniczka_ai_server.schemas.PlantPhotoSchemas import PlantPhotoCreate
+from doniczka_ai_server.schemas.PlantPhotoSchemas import (
+    PlantPhotoCreate,
+    PlantPhotoResponse,
+)
 from doniczka_ai_server.schemas.TelemetrySchemas import GetAllOptions
+from doniczka_ai_server.services.S3Service import S3Service
 
 
 @asynccontextmanager
@@ -105,6 +109,33 @@ def get_telemetry(id: int, options: Annotated[GetAllOptions, Query()]):
     return {
         "status": "success",
         "data": {"telemetry": telemetry},
+    }
+
+
+@app.get("/devices/{id}/photos")
+def get_plant_photos(
+    id: int,
+    options: Annotated[GetAllOptions, Query()] = GetAllOptions(),
+):
+    controller: PlantPhotoController = PlantPhotoController.get_instance()
+    s3_service: S3Service = S3Service.get_instance()
+
+    photos: Sequence[PlantPhoto] = controller.get_all(id, options)
+
+    photo_responses = [
+        PlantPhotoResponse(
+            id=photo.id,
+            device_id=photo.device_id,
+            path=photo.path,
+            timestamp=photo.timestamp,
+            url=s3_service.get_url(photo.path),
+        )
+        for photo in photos
+    ]
+
+    return {
+        "status": "success",
+        "data": {"photos": photo_responses},
     }
 
 

@@ -11,6 +11,7 @@ import TelemetryOverview from "./components/TelemetryOverview.vue";
 import StatusTile from "./components/StatusTile.vue";
 import { useTelemetryStore } from "./stores/telemetryStore.ts";
 import { storeToRefs } from "pinia";
+import { isDefined } from "@vueuse/core";
 
 const device: Ref<Device | undefined> = ref(undefined);
 

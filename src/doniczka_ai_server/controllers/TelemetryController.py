@@ -31,14 +31,14 @@ class TelemetryController:
         return cls._instance
 
     def get_all(self, device_id: int, options: GetAllOptions) -> Sequence[Telemetry]:
-        stmt = select(Telemetry).where(Telemetry.device_id == device_id)
+        stmt = select(Telemetry).where(Telemetry.device_id == device_id).limit(20)
 
-        if options.limit is not None:
-            stmt = stmt.limit(options.limit)
-        else:
-            stmt.where(
-                Telemetry.timestamp > datetime.now() - timedelta(options.period.value)
-            )
+        # if options.limit is not None:
+        #     stmt = stmt.limit(options.limit)
+        # else:
+        #     stmt.where(
+        #         Telemetry.timestamp > datetime.now() - timedelta(options.period.value)
+        #     )
 
         with Session(self.db_client, expire_on_commit=False) as session:
             return session.scalars(stmt).all()

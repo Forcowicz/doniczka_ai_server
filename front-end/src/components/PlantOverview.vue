@@ -1,12 +1,52 @@
 <script setup lang="ts">
+import { computed, ref, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { Camera } from "@lucide/vue";
+import type { Device } from "..";
+import { useTelemetryStore } from "../stores/telemetryStore.ts";
+
 const healthScore = 8;
 const healthLabel = "Bardzo dobry";
-import type { Device } from "..";
-import plantImg from "../assets/plant.jpg";
 
 const props = defineProps<{
   device: Device;
 }>();
+
+const telemetryStore = useTelemetryStore();
+const { latestPhoto } = storeToRefs(telemetryStore);
+
+const photoUrl = computed(() => latestPhoto.value?.url || plantImg);
+
+const imageSrc = ref(null);
+
+watch(
+  photoUrl,
+  (newUrl) => {
+    imageSrc.value = newUrl;
+  },
+  { immediate: true },
+);
+
+function onImageError() {
+  imageSrc.value = plantImg;
+}
+
+const formattedPhotoDate = computed(() => {
+  if (!latestPhoto.value?.timestamp) {
+    return null;
+  }
+  const date = new Date(latestPhoto.value.timestamp);
+  if (isNaN(date.getTime())) {
+    return null;
+  }
+  return new Intl.DateTimeFormat("pl-PL", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+});
 </script>
 
 <template>
@@ -57,16 +97,21 @@ const props = defineProps<{
     </div>
 
     <div
-      class="flex min-h-64 items-center justify-center bg-slate-100 text-slate-400"
-      aria-label="Miejsce na zdjęcie rośliny"
+      class="relative flex min-h-64 items-center justify-center bg-slate-100 text-slate-400 overflow-hidden"
+      aria-label="Zdjęcie rośliny"
     >
-      <div class="flex flex-col items-center gap-3">
-        <img
-          :src="plantImg"
-          alt="Zdjęcie rośliny"
-          class="w-full h-128 object-cover"
-        />
-        <span class="text-sm font-medium">Miejsce na zdjęcie</span>
+      <img
+        :src="imageSrc"
+        alt="Zdjęcie rośliny"
+        class="w-full h-full min-h-64 max-h-128 object-cover"
+        @error="onImageError"
+      />
+      <div
+        v-if="formattedPhotoDate"
+        class="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-slate-900/70 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm shadow-sm"
+      >
+        <Camera class="size-3.5 text-slate-200" />
+        <span>{{ formattedPhotoDate }}</span>
       </div>
     </div>
   </article>

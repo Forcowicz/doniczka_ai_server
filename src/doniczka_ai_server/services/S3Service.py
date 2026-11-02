@@ -46,3 +46,13 @@ class S3Service:
         except Exception as e:
             return False
         return True
+
+    def get_url(self, object_name: str, expiration: int = 3600) -> Optional[str]:
+        try:
+            return self._client.generate_presigned_url(
+                "get_object",
+                Params={"Bucket": self.bucket, "Key": object_name},
+                ExpiresIn=expiration,
+            )
+        except Exception as e:
+            return None

@@ -15,6 +15,14 @@ export interface TelemetryEntry {
   timestamp: string;
 }
 
+export interface PlantPhoto {
+  id: number;
+  device_id: number;
+  path: string;
+  timestamp: string;
+  url?: string | null;
+}
+
 export enum TelemetryPeriod {
   DAY = 1,
   WEEK = 7,
