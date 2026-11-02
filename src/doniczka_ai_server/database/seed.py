@@ -14,7 +14,8 @@ DEVICE_ID = 1
 BATCH_SIZE = 10_000
 START = datetime(2025, 10, 28, tzinfo=timezone.utc)
 END = datetime(2026, 10, 28, tzinfo=timezone.utc)
-MINUTE = timedelta(minutes=1)
+STEP_MINUTES = 5
+INTERVAL = timedelta(minutes=STEP_MINUTES)
 
 
 def _clamp(value: float, lower: float, upper: float) -> float:
@@ -22,7 +23,7 @@ def _clamp(value: float, lower: float, upper: float) -> float:
 
 
 def _telemetry_row(timestamp: datetime, minute_index: int) -> dict[str, object]:
-    """Create a smooth, deterministic synthetic reading for one minute."""
+    """Create a smooth, deterministic synthetic reading."""
     rng = random.Random(minute_index)
     day_fraction = (minute_index % (24 * 60)) / (24 * 60)
     year_fraction = minute_index / (365 * 24 * 60)
@@ -44,7 +45,9 @@ def _telemetry_row(timestamp: datetime, minute_index: int) -> dict[str, object]:
     soil_bottom_humidity = soil_trend + 14.0 + 1.0 * daily_cycle
     soil_bottom_humidity += rng.uniform(-0.2, 0.2)
 
-    light_intensity = int(_clamp(850.0 * daylight + rng.uniform(-20.0, 20.0), 0.0, 1_000.0))
+    light_intensity = int(
+        _clamp(850.0 * daylight + rng.uniform(-20.0, 20.0), 0.0, 1_000.0)
+    )
 
     return {
         "device_id": DEVICE_ID,
@@ -63,9 +66,7 @@ def seed_telemetry() -> int:
     inserted = 0
 
     with Session(engine) as session, session.begin():
-        device_exists = session.scalar(
-            select(Device.id).where(Device.id == DEVICE_ID)
-        )
+        device_exists = session.scalar(select(Device.id).where(Device.id == DEVICE_ID))
         if device_exists is None:
             raise RuntimeError(f"Device with id={DEVICE_ID} does not exist")
 
@@ -80,8 +81,8 @@ def seed_telemetry() -> int:
                 inserted += len(batch)
                 batch.clear()
 
-            timestamp += MINUTE
-            minute_index += 1
+            timestamp += INTERVAL
+            minute_index += STEP_MINUTES
 
         if batch:
             session.execute(insert(Telemetry), batch)
