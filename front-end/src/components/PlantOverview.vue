@@ -4,6 +4,7 @@ import { storeToRefs } from "pinia";
 import { Camera } from "@lucide/vue";
 import type { Device } from "..";
 import { useTelemetryStore } from "../stores/telemetryStore.ts";
+import plantImgPlaceholder from "../assets/plant_image_placeholder.jpg";
 
 const healthScore = 8;
 const healthLabel = "Bardzo dobry";
@@ -15,20 +16,20 @@ const props = defineProps<{
 const telemetryStore = useTelemetryStore();
 const { latestPhoto } = storeToRefs(telemetryStore);
 
-const photoUrl = computed(() => latestPhoto.value?.url || plantImg);
+const photoUrl = computed(() => latestPhoto.value?.url || plantImgPlaceholder);
 
 const imageSrc = ref(null);
 
 watch(
   photoUrl,
-  (newUrl) => {
+  newUrl => {
     imageSrc.value = newUrl;
   },
   { immediate: true },
 );
 
 function onImageError() {
-  imageSrc.value = plantImg;
+  imageSrc.value = plantImgPlaceholder;
 }
 
 const formattedPhotoDate = computed(() => {
