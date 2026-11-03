@@ -21,6 +21,8 @@ services:
         condition: service_healthy
       eclipse-mosquitto:
         condition: service_healthy
+    networks:
+      - proxy-net
   mqtt-subscriber:
     build:
       context: .
@@ -92,3 +94,7 @@ volumes:
   mosquitto-data:
   mosquitto-log:
   db-data-pg18:
+
+networks:
+  proxy-net:
+    external: true
