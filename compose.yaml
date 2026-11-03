@@ -58,7 +58,8 @@ services:
 
   postgres-doniczka:
     image: timescale/timescaledb-ha:pg18
-    # ports: usuń w produkcji
+    ports:
+      - "127.0.0.1:6021:5432"
     volumes:
       - db-data-pg18:/home/postgres/pgdata/data
     environment:
