@@ -12,10 +12,12 @@ import StatusTile from "./components/StatusTile.vue";
 import { useTelemetryStore } from "./stores/telemetryStore.ts";
 import { storeToRefs } from "pinia";
 import { isDefined } from "@vueuse/core";
+import { useEventLogStore } from "./stores/eventLogStore.ts";
 
 const device: Ref<Device | undefined> = ref(undefined);
 
 const telemetryStore = useTelemetryStore();
+const eventLogStore = useEventLogStore();
 
 onMounted(async () => {
   const deviceData: Device = await deviceService.getDevice();
@@ -24,6 +26,7 @@ onMounted(async () => {
 
   telemetryStore.fetchLatest();
   telemetryStore.fetch();
+  eventLogStore.fetch();
 });
 
 const {
@@ -37,7 +40,7 @@ const {
 
 <template>
   <main class="p-12 h-full">
-    <div class="grid grid-rows-[40%_1fr] grid-cols-1 h-full gap-12">
+    <div class="grid grid-rows-[40%_1fr] grid-cols-1 h-full min-h-0 gap-12">
       <div class="grid grid-cols-[60%_1fr] gap-12">
         <div class="grid grid-cols-3 grid-rows-[auto_1fr] gap-8">
           <div class="flex items-center col-span-3 gap-4">
@@ -90,13 +93,16 @@ const {
         <PlantOverview v-if="device" :device="device" class="row-span-2" />
       </div>
 
-      <div class="grid grid-cols-[75%_1fr] gap-12">
+      <div class="grid grid-cols-[75%_1fr] gap-12 min-h-0">
         <TelemetryOverview
           :entries="telemetryEntries"
           class="h-full w-full border rounded-lg border-gray-200"
         />
 
-        <EventLog class="border rounded-lg border-gray-200 p-4" />
+        <EventLog
+          :entries="eventLogStore.entries"
+          class="border rounded-lg border-gray-200 h-full min-h-0"
+        />
       </div>
     </div>
   </main>

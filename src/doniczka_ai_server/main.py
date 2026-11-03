@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.params import Form, Query
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Annotated, Sequence
+from typing import Annotated, Optional, Sequence
 from doniczka_ai_server.controllers import (
     DeviceController,
+    EventLogEntryController,
     PlantPhotoController,
     TelemetryController,
 )
@@ -15,8 +16,9 @@ from doniczka_ai_server.initializers import (
     initialize_database,
     initialize_s3,
 )
-from doniczka_ai_server.models import Device, Telemetry, PlantPhoto
+from doniczka_ai_server.models import Device, Telemetry, PlantPhoto, EventLogEntry
 from doniczka_ai_server.schemas.DeviceSchemas import DeviceCreate, DeviceResponse
+from doniczka_ai_server.schemas.EventLogEntrySchemas import EventLogEntryResponse
 from doniczka_ai_server.schemas.PlantPhotoSchemas import (
     PlantPhotoCreate,
     PlantPhotoResponse,
@@ -151,4 +153,39 @@ def store_plant_photo(
     return {
         "status": "success",
         "message": "Plant photo stored successfully.",
+    }
+
+
+@app.get("/devices/{id}/logs")
+@app.get("/devices/{id}/event-logs")
+def get_device_event_logs(
+    id: int,
+    limit: Optional[int] = Query(None),
+):
+    controller: EventLogEntryController = EventLogEntryController.get_instance()
+
+    logs: Sequence[EventLogEntry] = controller.get_all(device_id=id, limit=limit)
+
+    log_responses = [EventLogEntryResponse.model_validate(log) for log in logs]
+
+    return {
+        "status": "success",
+        "data": {"logs": log_responses, "event_logs": log_responses},
+    }
+
+
+@app.get("/logs")
+@app.get("/event-logs")
+def get_all_event_logs(
+    limit: Optional[int] = Query(None),
+):
+    controller: EventLogEntryController = EventLogEntryController.get_instance()
+
+    logs: Sequence[EventLogEntry] = controller.get_all(limit=limit)
+
+    log_responses = [EventLogEntryResponse.model_validate(log) for log in logs]
+
+    return {
+        "status": "success",
+        "data": {"logs": log_responses, "event_logs": log_responses},
     }

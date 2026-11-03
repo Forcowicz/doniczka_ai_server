@@ -47,7 +47,7 @@ services:
   postgres:
     image: timescale/timescaledb-ha:pg18
     volumes:
-      - db-data:/var/lib/postgresql/18/docker
+      - db-data-pg18:/home/postgres/pgdata/data
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -91,4 +91,4 @@ services:
 volumes:
   mosquitto-data:
   mosquitto-log:
-  db-data:
+  db-data-pg18:

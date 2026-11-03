@@ -23,9 +23,26 @@ export interface PlantPhoto {
   url?: string | null;
 }
 
+export interface IEventLogEntry {
+  id: number;
+  device_id: number;
+  content: string;
+  severity: Severity;
+  timestamp: string;
+}
+
+export type EventLogEntry = IEventLogEntry;
+
 export enum TelemetryPeriod {
   DAY = 1,
   WEEK = 7,
   MONTH = 30,
   YEAR = 365,
+}
+
+export enum Severity {
+  POSITIVE = 1,
+  INFO = 2,
+  WARNING = 3,
+  CRITICAL = 4,
 }
