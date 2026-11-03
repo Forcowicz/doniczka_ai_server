@@ -56,7 +56,7 @@ services:
     networks:
       - default
 
-  postgres:
+  postgres-doniczka:
     image: timescale/timescaledb-ha:pg18
     # ports: usuń w produkcji
     volumes:
