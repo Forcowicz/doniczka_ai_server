@@ -11,12 +11,9 @@ export const plantPhotoService = {
     deviceId: number,
     queryParams: GetAllQueryParams = {},
   ): Promise<PlantPhoto[]> {
-    const res = await axios.get(
-      `http://localhost:6020/devices/${deviceId}/photos`,
-      {
-        params: queryParams,
-      },
-    );
+    const res = await axios.get(`/api/devices/${deviceId}/photos`, {
+      params: queryParams,
+    });
 
     if (Array.isArray(res.data)) {
       return res.data;
@@ -32,4 +29,3 @@ export const plantPhotoService = {
     );
   },
 };
-

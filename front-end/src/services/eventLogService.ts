@@ -15,7 +15,7 @@ export const eventLogService = {
     };
 
     const res = await axios.get(
-      `http://localhost:6020/devices/${deviceId}/logs`,
+      `/api/devices/${deviceId}/logs`,
       {
         params,
       },
@@ -43,7 +43,7 @@ export const eventLogService = {
       limit: queryParams.limit ?? 20,
     };
 
-    const res = await axios.get(`http://localhost:6020/logs`, {
+    const res = await axios.get(`/api/logs`, {
       params,
     });
 
