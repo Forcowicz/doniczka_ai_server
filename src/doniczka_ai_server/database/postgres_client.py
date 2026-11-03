@@ -14,7 +14,7 @@ class PostgresClient:
             port = 5432
 
             cls._instance = create_engine(
-                f"postgresql+psycopg://{user}:{password}@postgres:{port}/{db}",
+                f"postgresql+psycopg://{user}:{password}@postgres-doniczka:{port}/{db}",
                 echo=True,
             )
         return cls._instance

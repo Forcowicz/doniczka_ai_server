@@ -14,7 +14,7 @@ from doniczka_ai_server.models import Telemetry, Device, PlantPhoto, EventLogEnt
 user = os.getenv("POSTGRES_USER")
 password = os.getenv("POSTGRES_PASSWORD")
 db = os.getenv("POSTGRES_DB")
-database_url = f"postgresql+psycopg://{user}:{password}@postgres/{db}"
+database_url = f"postgresql+psycopg://{user}:{password}@postgres-doniczka/{db}"
 
 config = context.config
 config.set_main_option("sqlalchemy.url", database_url)
