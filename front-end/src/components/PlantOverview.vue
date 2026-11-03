@@ -62,12 +62,6 @@ const formattedPhotoDate = computed(() => {
             {{ props.device.name }}
           </h2>
         </div>
-
-        <span
-          class="rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold text-blue-700"
-        >
-          Zdrowa
-        </span>
       </div>
 
       <div class="flex flex-col gap-3">
