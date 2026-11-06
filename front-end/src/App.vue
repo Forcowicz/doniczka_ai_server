@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { onMounted, ref, type Ref } from "vue";
+import { computed, onMounted, ref, type Ref } from "vue";
 import { deviceService } from "./services/deviceService.ts";
 import type { Device } from "./index";
 import TelemetryTile from "./components/TelemetryTile.vue";
 import EventLog from "./components/EventLog.vue";
 import PlantOverview from "./components/PlantOverview.vue";
 import DataStatus from "./components/DataStatus.vue";
-import { Droplets, Sun, Thermometer } from "@lucide/vue";
+import { Droplets, GlassWater, Sun, Thermometer } from "@lucide/vue";
 import TelemetryOverview from "./components/TelemetryOverview.vue";
 import StatusTile from "./components/StatusTile.vue";
 import { useTelemetryStore } from "./stores/telemetryStore.ts";
 import { storeToRefs } from "pinia";
 import { isDefined } from "@vueuse/core";
 import { useEventLogStore } from "./stores/eventLogStore.ts";
+import TelemetryTileScalar from "./components/TelemetryTileScalar.vue";
+import BarChart from "./components/BarChart.vue";
 
 const device: Ref<Device | undefined> = ref(undefined);
 
@@ -33,17 +35,37 @@ const {
   latestTemp,
   latestAirHumidity,
   latestLightIntensity,
+  latestSoilTopMoisture,
+  latestSoilMiddleMoisture,
+  latestSoilBottomMoisture,
   fetchedAt,
   telemetryEntries,
 } = storeToRefs(telemetryStore);
+
+const soilMoistureDataSeries = computed(() => [
+  {
+    name: "Góra",
+    value: latestSoilTopMoisture.value,
+  },
+  {
+    name: "Środek",
+    value: latestSoilMiddleMoisture.value,
+  },
+  {
+    name: "Dół",
+    value: latestSoilBottomMoisture.value,
+  },
+]);
 </script>
 
 <template>
   <main class="p-12 h-full">
-    <div class="grid grid-rows-[40%_1fr] grid-cols-1 h-full min-h-0 gap-12">
-      <div class="grid grid-cols-[60%_1fr] gap-12">
-        <div class="grid grid-cols-3 grid-rows-[auto_1fr] gap-8">
-          <div class="flex items-center col-span-3 gap-4">
+    <div class="grid grid-rows-[50%_1fr] grid-cols-1 h-full min-h-0 gap-12">
+      <div class="grid grid-cols-[65%_1fr] gap-12 min-h-0">
+        <div
+          class="grid grid-cols-[2fr_3fr] grid-rows-[auto_repeat(3,1fr)] gap-6 min-h-0"
+        >
+          <div class="flex items-center col-span-2 gap-4">
             <DataStatus
               :fetched-at="fetchedAt"
               class="rounded-lg border border-gray-200"
@@ -65,32 +87,55 @@ const {
           </div>
 
           <TelemetryTile
-            title="Temperatura"
             v-if="latestTemp"
-            :value="latestTemp"
+            layout="row"
+            title="Temperatura"
             unit="°C"
             :icon="Thermometer"
             color="#f97316"
-          />
+          >
+            <TelemetryTileScalar :value="latestTemp" unit="°C" />
+          </TelemetryTile>
+
           <TelemetryTile
             title="Wilgotność pow."
             v-if="latestAirHumidity"
-            :value="latestAirHumidity"
-            unit="%"
+            layout="row"
             :icon="Droplets"
             color="#0ea5e9"
-          />
+          >
+            <TelemetryTileScalar :value="latestAirHumidity" unit="%" />
+          </TelemetryTile>
+
           <TelemetryTile
             title="Naświetlenie"
             v-if="isDefined(latestLightIntensity)"
-            :value="latestLightIntensity"
-            unit="LUX"
+            layout="row"
             :icon="Sun"
             color="#f59e0b"
-          />
+          >
+            <TelemetryTileScalar :value="latestLightIntensity" unit="LUX" />
+          </TelemetryTile>
+
+          <TelemetryTile
+            title="Wilgotność gleby"
+            v-if="isDefined(soilMoistureDataSeries)"
+            class="row-span-3 col-start-2 row-start-2 min-h-0"
+            :icon="GlassWater"
+            color="#007A5C"
+          >
+            <BarChart
+              series-name="Wilgotność gleby"
+              unit="%"
+              :entries="soilMoistureDataSeries"
+              :min="0"
+              :max="100"
+              color="#007A5C"
+            />
+          </TelemetryTile>
         </div>
 
-        <PlantOverview v-if="device" :device="device" class="row-span-2" />
+        <PlantOverview v-if="device" :device="device" class="min-h-0" />
       </div>
 
       <div class="grid grid-cols-[75%_1fr] gap-12 min-h-0">

@@ -77,6 +77,15 @@ export const useTelemetryStore = defineStore("telemetry", () => {
 
   const latestTemp = computed(() => latestEntry.value?.temperature);
   const latestAirHumidity = computed(() => latestEntry.value?.air_humidity);
+  const latestSoilTopMoisture = computed(
+    () => latestEntry.value?.soil_top_humidity,
+  );
+  const latestSoilMiddleMoisture = computed(
+    () => latestEntry.value?.soil_middle_humidity,
+  );
+  const latestSoilBottomMoisture = computed(
+    () => latestEntry.value?.soil_bottom_humidity,
+  );
   const latestLightIntensity = computed(
     () => latestEntry.value?.light_intensity,
   );
@@ -90,6 +99,9 @@ export const useTelemetryStore = defineStore("telemetry", () => {
     latestTemp,
     latestAirHumidity,
     latestLightIntensity,
+    latestSoilTopMoisture,
+    latestSoilMiddleMoisture,
+    latestSoilBottomMoisture,
     fetchedAt,
     telemetryEntries,
   };
