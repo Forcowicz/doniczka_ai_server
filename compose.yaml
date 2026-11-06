@@ -5,6 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
     command: /app/.venv/bin/fastapi run src/doniczka_ai_server/main.py --port 80 --host 0.0.0.0
+    ports:
+      - "127.0.0.1:8000:80"
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -22,15 +24,6 @@ services:
         condition: service_healthy
     networks:
       - default
-      - proxy-net
-
-  frontend:
-    container_name: doniczka-frontend
-    build:
-      context: ./front-end
-      dockerfile: Dockerfile
-    networks:
-      - proxy-net
 
   mqtt-subscriber:
     container_name: doniczka-mqtt-subscriber
@@ -74,7 +67,10 @@ services:
 
   eclipse-mosquitto:
     image: eclipse-mosquitto
-    # ports: usuń w produkcji, jeśli MQTT nie musi być publiczne
+    ports:
+      - "127.0.0.1:1883:1883"
+      - "127.0.0.1:9001:9001"
+
     volumes:
       - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
       - mosquitto-data:/mosquitto/data
@@ -101,7 +97,3 @@ volumes:
   mosquitto-data:
   mosquitto-log:
   db-data-pg18:
-
-networks:
-  proxy-net:
-    external: true

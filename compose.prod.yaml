@@ -1,0 +1,107 @@
+services:
+  api:
+    container_name: doniczka-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: /app/.venv/bin/fastapi run src/doniczka_ai_server/main.py --port 80 --host 0.0.0.0
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - MQTT_BROKER_HOST
+      - MQTT_BROKER_PORT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_BUCKET_NAME
+      - AWS_REGION
+    depends_on:
+      postgres-doniczka:
+        condition: service_healthy
+      eclipse-mosquitto:
+        condition: service_healthy
+    networks:
+      - default
+      - proxy-net
+
+  frontend:
+    container_name: doniczka-frontend
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    networks:
+      - proxy-net
+
+  mqtt-subscriber:
+    container_name: doniczka-mqtt-subscriber
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: /app/.venv/bin/python -u mqtt_subscriber.py
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - MQTT_BROKER_HOST
+      - MQTT_BROKER_PORT
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_BUCKET_NAME
+      - AWS_REGION
+    depends_on:
+      postgres-doniczka:
+        condition: service_healthy
+      eclipse-mosquitto:
+        condition: service_healthy
+    networks:
+      - default
+
+  postgres-doniczka:
+    image: timescale/timescaledb-ha:pg18
+    ports:
+      - "127.0.0.1:6021:5432"
+    volumes:
+      - db-data-pg18:/home/postgres/pgdata/data
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  eclipse-mosquitto:
+    image: eclipse-mosquitto
+    # ports: usuń w produkcji, jeśli MQTT nie musi być publiczne
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mosquitto_pub",
+          "-p",
+          "1883",
+          "-t",
+          "healthcheck",
+          "-m",
+          "ping",
+          "-q",
+          "1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mosquitto-data:
+  mosquitto-log:
+  db-data-pg18:
+
+networks:
+  proxy-net:
+    external: true
