@@ -111,7 +111,7 @@ const timeFormatterStr = computed(() => {
     case "30":
       return "D MMM";
     case "365":
-      return "MMMM YYYY";
+      return "MMMM";
   }
 });
 
