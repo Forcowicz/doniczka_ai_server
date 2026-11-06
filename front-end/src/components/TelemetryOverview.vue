@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch, type Ref } from "vue";
-import { TelemetryPeriod, type TelemetryEntry } from "..";
+import { TelemetryPeriod, type TelemetryBucket } from "..";
 import TelemetryChart from "./TelemetryChart.vue";
 import Dropdown, { type DropdownOption } from "./ui/Dropdown.vue";
 import { useTelemetryStore } from "../stores/telemetryStore.ts";
+import { useDateFormat } from "@vueuse/core";
 
 const props = defineProps<{
-  entries: TelemetryEntry[];
+  entries: TelemetryBucket[];
 }>();
 
 const telemetryStore = useTelemetryStore();
@@ -66,48 +67,56 @@ const filteredEntries = computed(() => {
       return [
         {
           title: "Temperatura",
-          series: [...props.entries].map(e => e.temperature),
+          series: [...props.entries].map(e => e.avg_temperature),
         },
       ];
     case "air humidity":
       return [
         {
           title: "Wilgotność powietrza",
-          series: [...props.entries].map(e => e.air_humidity),
+          series: [...props.entries].map(e => e.avg_air_humidity),
         },
       ];
     case "soil moisture":
       return [
         {
           title: "Góra",
-          series: [...props.entries].map(e => e.soil_top_humidity),
+          series: [...props.entries].map(e => e.avg_soil_top_humidity),
         },
         {
           title: "Środek",
-          series: [...props.entries].map(e => e.soil_middle_humidity),
+          series: [...props.entries].map(e => e.avg_soil_middle_humidity),
         },
         {
           title: "Dół",
-          series: [...props.entries].map(e => e.soil_bottom_humidity),
+          series: [...props.entries].map(e => e.avg_soil_bottom_humidity),
         },
       ];
     case "light intensity":
       return [
         {
           title: "Naświetlenie",
-          series: [...props.entries].map(e => e.light_intensity),
+          series: [...props.entries].map(e => e.avg_light_intensity),
         },
       ];
   }
 });
 
-const timeFormatter = new Intl.DateTimeFormat("pl-PL", {
-  hour: "2-digit",
-  minute: "2-digit",
+const timeFormatterStr = computed(() => {
+  switch (selectedPeriod.value) {
+    case "1":
+      return "HH:mm";
+    case "7":
+      return "D MMM HH:mm";
+    case "30":
+      return "D MMM";
+    case "365":
+      return "MMMM YYYY";
+  }
 });
 
-const timestamps = props.entries.map(e =>
-  timeFormatter.format(new Date(e.timestamp)),
+const timestamps = computed(() =>
+  props.entries.map(e => useDateFormat(e.bucket, timeFormatterStr.value).value),
 );
 
 watch(

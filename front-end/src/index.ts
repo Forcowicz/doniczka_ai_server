@@ -15,6 +15,17 @@ export interface TelemetryEntry {
   timestamp: string;
 }
 
+export interface TelemetryBucket {
+  device_id: number;
+  avg_soil_middle_humidity: number | null;
+  avg_temperature: number | null;
+  avg_air_humidity: number | null;
+  avg_light_intensity: number | null;
+  avg_soil_top_humidity: number | null;
+  avg_soil_bottom_humidity: number | null;
+  bucket: string;
+}
+
 export interface PlantPhoto {
   id: number;
   device_id: number;

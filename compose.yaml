@@ -4,7 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: /app/.venv/bin/fastapi run src/doniczka_ai_server/main.py --port 80 --host 0.0.0.0
+    command: /app/.venv/bin/fastapi dev src/doniczka_ai_server/main.py --port 80 --host 0.0.0.0
+    volumes:
+      - ./src:/app/src
     ports:
       - "127.0.0.1:8000:80"
     environment:
@@ -31,6 +33,9 @@ services:
       context: .
       dockerfile: Dockerfile
     command: /app/.venv/bin/python -u mqtt_subscriber.py
+    volumes:
+      - ./src:/app/src
+      - ./mqtt_subscriber.py:/app/mqtt_subscriber.py
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD

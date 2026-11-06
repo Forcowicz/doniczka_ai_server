@@ -1,6 +1,11 @@
 import { defineStore } from "pinia";
 import { computed, ref, type Ref } from "vue";
-import { TelemetryPeriod, type TelemetryEntry, type PlantPhoto } from "..";
+import {
+  TelemetryPeriod,
+  type TelemetryEntry,
+  type PlantPhoto,
+  type TelemetryBucket,
+} from "..";
 import { telemetryService } from "../services/telemetryService";
 import { plantPhotoService } from "../services/plantPhotoService";
 
@@ -9,7 +14,7 @@ export const useTelemetryStore = defineStore("telemetry", () => {
 
   const latestEntry: Ref<TelemetryEntry | null> = ref(null);
   const latestPhoto: Ref<PlantPhoto | null> = ref(null);
-  const telemetryEntries: Ref<TelemetryEntry[]> = ref([]);
+  const telemetryEntries: Ref<TelemetryBucket[]> = ref([]);
   const isFetching: Ref<boolean> = ref(false);
   const fetchedAt: Ref<Date> = ref(new Date());
 
@@ -29,16 +34,14 @@ export const useTelemetryStore = defineStore("telemetry", () => {
       isFetching.value = true;
 
       const [telemetryRes, photoRes] = await Promise.allSettled([
-        telemetryService.getAll(deviceId, {
-          limit: 1,
-        }),
+        telemetryService.getLatest(deviceId),
         plantPhotoService.getAll(deviceId, {
           limit: 1,
         }),
       ]);
 
       if (telemetryRes.status === "fulfilled") {
-        latestEntry.value = telemetryRes.value[0] || null;
+        latestEntry.value = telemetryRes.value || null;
       } else {
         console.error(telemetryRes.reason);
       }
@@ -61,7 +64,7 @@ export const useTelemetryStore = defineStore("telemetry", () => {
     try {
       isFetching.value = true;
 
-      telemetryEntries.value = await telemetryService.getAll(deviceId, {
+      telemetryEntries.value = await telemetryService.getBuckets(deviceId, {
         period,
       });
       fetchedAt.value = new Date();

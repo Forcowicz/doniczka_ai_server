@@ -16,7 +16,13 @@ from doniczka_ai_server.initializers import (
     initialize_database,
     initialize_s3,
 )
-from doniczka_ai_server.models import Device, Telemetry, PlantPhoto, EventLogEntry
+from doniczka_ai_server.models import (
+    Device,
+    EventLogEntry,
+    PlantPhoto,
+    Telemetry,
+    Telemetry1Hour,
+)
 from doniczka_ai_server.schemas.DeviceSchemas import DeviceCreate, DeviceResponse
 from doniczka_ai_server.schemas.EventLogEntrySchemas import EventLogEntryResponse
 from doniczka_ai_server.schemas.PlantPhotoSchemas import (
@@ -106,7 +112,19 @@ def delete_device(id: int):
 def get_telemetry(id: int, options: Annotated[GetAllOptions, Query()]):
     controller: TelemetryController = TelemetryController.get_instance()
 
-    telemetry: Sequence[Telemetry] = controller.get_all(id, options)
+    telemetry: Sequence[Telemetry1Hour] = controller.get_time_buckets(id, options)
+
+    return {
+        "status": "success",
+        "data": {"telemetry": telemetry},
+    }
+
+
+@app.get("/devices/{id}/telemetry/latest")
+def get_latest_telemetry(id: int):
+    controller: TelemetryController = TelemetryController.get_instance()
+
+    telemetry: Telemetry = controller.get_latest(id)
 
     return {
         "status": "success",

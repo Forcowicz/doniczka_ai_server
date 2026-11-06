@@ -11,9 +11,12 @@ export const plantPhotoService = {
     deviceId: number,
     queryParams: GetAllQueryParams = {},
   ): Promise<PlantPhoto[]> {
-    const res = await axios.get(`/api/devices/${deviceId}/photos`, {
-      params: queryParams,
-    });
+    const res = await axios.get(
+      `${import.meta.env.VITE_API_URL}/devices/${deviceId}/photos`,
+      {
+        params: queryParams,
+      },
+    );
 
     if (Array.isArray(res.data)) {
       return res.data;

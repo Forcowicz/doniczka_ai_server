@@ -1,13 +1,14 @@
-from datetime import datetime, timedelta
 from collections.abc import Sequence
 
-from sqlalchemy import Engine, select
+from sqlalchemy import Engine, select, text
 from sqlalchemy.orm import Session
 
+from doniczka_ai_server.enums import TELEMETRY_PERIOD_TO_POSTGRES_INTERVAL
+from doniczka_ai_server.enums.TelemetryEnums import TELEMETRY_PERIOD_TO_POSTGRES_VIEW
 from doniczka_ai_server.errors.controller_errors import (
     ControllerNotInstantiatedException,
 )
-from doniczka_ai_server.models import Telemetry
+from doniczka_ai_server.models import TelemetryBucket, Telemetry
 from doniczka_ai_server.schemas.TelemetrySchemas import GetAllOptions, TelemetryCreate
 
 
@@ -30,15 +31,35 @@ class TelemetryController:
             raise ControllerNotInstantiatedException()
         return cls._instance
 
-    def get_all(self, device_id: int, options: GetAllOptions) -> Sequence[Telemetry]:
-        stmt = select(Telemetry).where(Telemetry.device_id == device_id).limit(20)
+    def get_latest(self, device_id: int) -> Telemetry:
+        stmt = (
+            select(Telemetry)
+            .where(Telemetry.device_id == device_id)
+            .order_by(Telemetry.timestamp.desc())
+            .limit(1)
+        )
 
-        # if options.limit is not None:
-        #     stmt = stmt.limit(options.limit)
-        # else:
-        #     stmt.where(
-        #         Telemetry.timestamp > datetime.now() - timedelta(options.period.value)
-        #     )
+        with Session(self.db_client, expire_on_commit=False) as session:
+            return session.scalars(stmt).first()
+
+    def get_time_buckets(
+        self, device_id: int, options: GetAllOptions
+    ) -> Sequence[TelemetryBucket]:
+        interval = TELEMETRY_PERIOD_TO_POSTGRES_INTERVAL.get(
+            options.period, f"{options.period.value} days"
+        )
+
+        TelemetryView: type[TelemetryBucket] = TELEMETRY_PERIOD_TO_POSTGRES_VIEW.get(
+            options.period
+        )
+
+        stmt = select(TelemetryView).where(
+            TelemetryView.device_id == device_id,
+            TelemetryView.bucket >= text(f"NOW() - INTERVAL '{interval}'"),
+        )
+
+        if options.limit is not None:
+            stmt = stmt.limit(options.limit)
 
         with Session(self.db_client, expire_on_commit=False) as session:
             return session.scalars(stmt).all()
