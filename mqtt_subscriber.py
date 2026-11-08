@@ -63,7 +63,6 @@ def connect_mqtt():
             os.environ["MQTT_USERNAME"],
             os.environ["MQTT_PASSWORD"],
         )
-        client.tls_set(ca_certs=os.environ["MQTT_CA_CERT"])
         client.connect(
             os.environ["MQTT_BROKER_HOST"],
             int(os.environ.get("MQTT_BROKER_PORT", "8883")),
