@@ -75,14 +75,11 @@ services:
       retries: 5
 
   eclipse-mosquitto:
-    image: eclipse-mosquitto
+    image: eclipse-mosquitto:2.1.2
     ports:
       - "8883:8883"
     environment:
-      - MQTT_BROKER_HOST
-      - MQTT_BROKER_PORT
-      - MQTT_USERNAME
-      - MQTT_PASSWORD
+      - MQTT_HEALTHCHECK_PASSWORD
     volumes:
       - ./mosquitto.prod.conf:/mosquitto/config/mosquitto.conf:ro
       - ./mosquitto-secrets/passwd:/mosquitto/config/passwd:ro
@@ -94,7 +91,7 @@ services:
       test: [
           "CMD-SHELL",
           "mosquitto_pub -h 127.0.0.1 -p 8883 \
-          --cafile /mosquitto/config/certs/ca.crt \
+          --cafile /mosquitto/config/certs/ca.crt --insecure \
           -u healthcheck -P \"$${MQTT_HEALTHCHECK_PASSWORD}\" \
           -t healthcheck -m ping -q 1",
         ]
