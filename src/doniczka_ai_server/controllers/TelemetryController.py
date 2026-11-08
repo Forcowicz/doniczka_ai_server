@@ -65,7 +65,7 @@ class TelemetryController:
             return session.scalars(stmt).all()
 
     def store_telemetry(self, telemetry_data: TelemetryCreate):
-        telemetry = Telemetry(**telemetry_data.model_dump())
+        telemetry = Telemetry(**telemetry_data.model_dump(), device_id=1)
 
         with Session(
             self.db_client, expire_on_commit=False

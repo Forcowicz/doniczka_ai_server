@@ -7,7 +7,6 @@ from doniczka_ai_server.enums.TelemetryEnums import TelemetryPeriod
 
 
 class TelemetryBase(BaseModel):
-    device_id: int
     temperature: Optional[float] = None  # Celsius
     air_humidity: Optional[float] = None  # Percentage
     soil_top_humidity: Optional[float] = None  # Percentage

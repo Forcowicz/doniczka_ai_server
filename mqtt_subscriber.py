@@ -45,7 +45,7 @@ def connect_mqtt():
     def on_connect(client, userdata, flags, reason_code, properties):
         if reason_code == 0:
             print("Connected to MQTT Broker!")
-            subscribe("devices/telemetry", client, on_telemetry_message)
+            subscribe("devices/1/telemetry", client, on_telemetry_message)
             subscribe("devices/1/events", client, on_event_message)
         else:
             print(f"Failed to connect, return code {reason_code}")
