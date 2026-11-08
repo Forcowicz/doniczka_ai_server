@@ -76,24 +76,27 @@ services:
 
   eclipse-mosquitto:
     image: eclipse-mosquitto
-    # ports: usuń w produkcji, jeśli MQTT nie musi być publiczne
+    ports:
+      - "8883:8883"
+    environment:
+      - MQTT_BROKER_HOST
+      - MQTT_BROKER_PORT
+      - MQTT_USERNAME
+      - MQTT_PASSWORD
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.prod.conf:ro
+      - ./mosquitto-secrets/passwd:/mosquitto/config/passwd:ro
+      - ./mosquitto-secrets/acl:/mosquitto/config/acl:ro
+      - ./mosquitto-secrets/certs:/mosquitto/config/certs:ro
       - mosquitto-data:/mosquitto/data
       - mosquitto-log:/mosquitto/log
     healthcheck:
-      test:
-        [
-          "CMD",
-          "mosquitto_pub",
-          "-p",
-          "1883",
-          "-t",
-          "healthcheck",
-          "-m",
-          "ping",
-          "-q",
-          "1",
+      test: [
+          "CMD-SHELL",
+          "mosquitto_pub -h 127.0.0.1 -p 8883 \
+          --cafile /mosquitto/config/certs/ca.crt \
+          -u healthcheck -P \"$${MQTT_HEALTHCHECK_PASSWORD}\" \
+          -t healthcheck -m ping -q 1",
         ]
       interval: 10s
       timeout: 5s

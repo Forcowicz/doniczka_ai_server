@@ -57,7 +57,15 @@ def connect_mqtt():
     )
 
     client.on_connect = on_connect
-    client.connect(os.getenv("MQTT_BROKER_HOST"), int(os.getenv("MQTT_BROKER_PORT")))
+    client.username_pw_set(
+        os.environ["MQTT_USERNAME"],
+        os.environ["MQTT_PASSWORD"],
+    )
+    client.tls_set(ca_certs=os.environ["MQTT_CA_CERT"])
+    client.connect(
+        os.environ["MQTT_BROKER_HOST"],
+        int(os.environ.get("MQTT_BROKER_PORT", "8883")),
+    )
     return client
 
 
