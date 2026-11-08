@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 
 from doniczka_ai_server.models.Telemetry import (
     Telemetry14Days,
@@ -7,6 +7,13 @@ from doniczka_ai_server.models.Telemetry import (
     Telemetry8Hours,
     TelemetryBucket,
 )
+
+
+class PumpBlock(StrEnum):
+    NONE = "NONE"
+    NO_WATER = "NO_WATER"
+    FIRE = "FIRE"
+    COOLDOWN = "COOLDOWN"
 
 
 class TelemetryPeriod(IntEnum):

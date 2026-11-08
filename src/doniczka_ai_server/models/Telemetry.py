@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy import Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, synonym
 
 from doniczka_ai_server.database.schemas import Base, ViewBase
@@ -15,10 +15,13 @@ class Telemetry(Base):
     device_id: Mapped[int] = mapped_column(ForeignKey("devices.id"), primary_key=True)
     temperature: Mapped[Optional[float]] = mapped_column(nullable=True)
     air_humidity: Mapped[Optional[float]] = mapped_column(nullable=True)
+    air_pressure: Mapped[Optional[int]] = mapped_column(nullable=True)
     soil_top_humidity: Mapped[Optional[float]] = mapped_column(nullable=True)
     soil_middle_humidity: Mapped[Optional[float]] = mapped_column(nullable=True)
     soil_bottom_humidity: Mapped[Optional[float]] = mapped_column(nullable=True)
     light_intensity: Mapped[Optional[int]] = mapped_column(nullable=True)
+    uv: Mapped[Optional[float]] = mapped_column(nullable=True)
+    fire: Mapped[Optional[bool]] = mapped_column(Boolean, nullable=True)
     timestamp: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), primary_key=True
     )
@@ -38,10 +41,12 @@ class _TelemetryBucketColumns:
 
     avg_temperature: Mapped[Optional[float]] = mapped_column(nullable=True)
     avg_air_humidity: Mapped[Optional[float]] = mapped_column(nullable=True)
+    avg_air_pressure: Mapped[Optional[int]] = mapped_column(nullable=True)
     avg_soil_top_humidity: Mapped[Optional[float]] = mapped_column(nullable=True)
     avg_soil_middle_humidity: Mapped[Optional[float]] = mapped_column(nullable=True)
     avg_soil_bottom_humidity: Mapped[Optional[float]] = mapped_column(nullable=True)
     avg_light_intensity: Mapped[Optional[int]] = mapped_column(nullable=True)
+    avg_uv: Mapped[Optional[float]] = mapped_column(nullable=True)
 
 
 class Telemetry1Hour(_TelemetryBucketColumns, ViewBase):
