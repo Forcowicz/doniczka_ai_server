@@ -24,7 +24,8 @@ from doniczka_ai_server.services.S3Service import S3Service
 
 
 def initialize_database(engine: Engine) -> None:
-    Base.metadata.create_all(engine)
+    # Base.metadata.create_all(engine)
+    pass
 
 
 def initialize_controllers(engine: Engine) -> None:
