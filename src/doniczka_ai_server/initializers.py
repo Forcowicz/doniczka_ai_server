@@ -12,7 +12,14 @@ from doniczka_ai_server.database.postgres_client import PostgresClient
 from doniczka_ai_server.database.schemas import Base
 
 # Model imports
-from doniczka_ai_server.models import Device, EventLogEntry, PlantPhoto, Telemetry
+from doniczka_ai_server.models import (
+    Device,
+    EventLogEntry,
+    PlantPhoto,
+    Telemetry,
+    AIRaport,
+    PlantBadge,
+)
 from doniczka_ai_server.services.S3Service import S3Service
 
 
