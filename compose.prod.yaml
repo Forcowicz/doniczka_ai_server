@@ -31,6 +31,9 @@ services:
     build:
       context: ./front-end
       dockerfile: Dockerfile
+    depends_on:
+      api:
+        condition: service_started
     networks:
       - proxy-net
 
