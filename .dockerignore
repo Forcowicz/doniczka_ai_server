@@ -2,3 +2,4 @@
 .env
 .gitignore
 /src/doniczka_ai_server/__pycache__
+mosquitto-secrets/
