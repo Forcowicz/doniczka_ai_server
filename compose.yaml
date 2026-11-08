@@ -10,6 +10,7 @@ services:
     ports:
       - "127.0.0.1:8000:80"
     environment:
+      - APP_ENV
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
@@ -37,6 +38,7 @@ services:
       - ./src:/app/src
       - ./mqtt_subscriber.py:/app/mqtt_subscriber.py
     environment:
+      - APP_ENV
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB

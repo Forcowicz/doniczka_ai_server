@@ -2,9 +2,10 @@
 import { computed, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { Camera } from "@lucide/vue";
-import type { Device } from "..";
+import { Severity, type Device } from "..";
 import { useTelemetryStore } from "../stores/telemetryStore.ts";
 import plantImgPlaceholder from "../assets/plant_image_placeholder.jpg";
+import PlantBadge from "./PlantBadge.vue";
 
 const healthScore = 8;
 const healthLabel = "Bardzo dobry";
@@ -61,6 +62,32 @@ const formattedPhotoDate = computed(() => {
           <h2 class="text-2xl font-semibold tracking-tight text-slate-900">
             {{ props.device.name }}
           </h2>
+
+          <div class="mt-3 flex gap-2 items-center flex-wrap">
+            <PlantBadge
+              title="Dobre nawodnenie"
+              :severity="1"
+              :timestamp="new Date().toDateString()"
+              content="Doniczka jest niesamowicie dobrze nawodniona!"
+            />
+
+            <PlantBadge
+              title="Za mało światła"
+              :severity="3"
+              :timestamp="new Date().toDateString()"
+            />
+
+            <PlantBadge
+              title="Zbyt wysoka wilgotność pow."
+              :severity="3"
+              :timestamp="new Date().toDateString()"
+            />
+            <PlantBadge
+              title="Zbyt niska temperatura"
+              :severity="3"
+              :timestamp="new Date().toDateString()"
+            />
+          </div>
         </div>
       </div>
 
