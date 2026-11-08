@@ -9,8 +9,8 @@ Create Date: 2026-11-06 21:46:45.264124
 from typing import Sequence, Union
 from alembic import op
 
-revision: str = "..."
-down_revision: Union[str, Sequence[str], None] = "..."
+revision: str = "f4aee1e99d4a"
+down_revision: Union[str, Sequence[str], None] = "fa189b6c9200"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 # Konfiguracja widoków: (nazwa_widoku, bucket_interval, refresh_schedule, start_offset)
