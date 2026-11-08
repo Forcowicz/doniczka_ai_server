@@ -57,6 +57,8 @@ services:
       - AWS_BUCKET_NAME
       - AWS_REGION
       - APP_ENV
+      - MQTT_USERNAME
+      - MQTT_PASSWORD
     depends_on:
       postgres-doniczka:
         condition: service_healthy
