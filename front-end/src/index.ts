@@ -12,6 +12,8 @@ export interface TelemetryEntry {
   light_intensity: number | null;
   soil_top_humidity: number | null;
   soil_bottom_humidity: number | null;
+  uv: number | null;
+  air_pressure: number | null;
   timestamp: string;
 }
 

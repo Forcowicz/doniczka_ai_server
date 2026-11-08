@@ -6,7 +6,14 @@ import TelemetryTile from "./components/TelemetryTile.vue";
 import EventLog from "./components/EventLog.vue";
 import PlantOverview from "./components/PlantOverview.vue";
 import DataStatus from "./components/DataStatus.vue";
-import { Droplets, GlassWater, Sun, Thermometer } from "@lucide/vue";
+import {
+  Droplets,
+  Gauge,
+  GlassWater,
+  Lightbulb,
+  Sun,
+  Thermometer,
+} from "@lucide/vue";
 import TelemetryOverview from "./components/TelemetryOverview.vue";
 import StatusTile from "./components/StatusTile.vue";
 import { useTelemetryStore } from "./stores/telemetryStore.ts";
@@ -38,6 +45,8 @@ const {
   latestSoilTopMoisture,
   latestSoilMiddleMoisture,
   latestSoilBottomMoisture,
+  latestAirPressure,
+  latestUv,
   fetchedAt,
   telemetryEntries,
 } = storeToRefs(telemetryStore);
@@ -63,9 +72,9 @@ const soilMoistureDataSeries = computed(() => [
     <div class="grid grid-rows-[50%_1fr] grid-cols-1 h-full min-h-0 gap-12">
       <div class="grid grid-cols-[65%_1fr] gap-12 min-h-0">
         <div
-          class="grid grid-cols-[2fr_3fr] grid-rows-[auto_repeat(3,1fr)] gap-6 min-h-0"
+          class="grid grid-cols-[1fr_1fr_3fr] grid-rows-[auto_repeat(3,1fr)] gap-6 min-h-0"
         >
-          <div class="flex items-center col-span-2 gap-4">
+          <div class="flex items-center col-span-3 gap-4">
             <DataStatus
               :fetched-at="fetchedAt"
               class="rounded-lg border border-gray-200"
@@ -111,16 +120,37 @@ const soilMoistureDataSeries = computed(() => [
             title="Naświetlenie"
             v-if="isDefined(latestLightIntensity)"
             layout="row"
-            :icon="Sun"
+            :icon="Lightbulb"
             color="#f59e0b"
+            class="col-span-2"
           >
             <TelemetryTileScalar :value="latestLightIntensity" unit="LUX" />
           </TelemetryTile>
 
           <TelemetryTile
+            title="Indeks UV"
+            v-if="isDefined(latestUv)"
+            layout="row"
+            :icon="Sun"
+            color="#a855f7"
+          >
+            <TelemetryTileScalar :value="latestUv" unit="UV" />
+          </TelemetryTile>
+
+          <TelemetryTile
+            title="Ciśnienie atmosferyczne"
+            v-if="isDefined(latestAirPressure)"
+            layout="row"
+            :icon="Gauge"
+            color="#6366f1"
+          >
+            <TelemetryTileScalar :value="latestAirPressure" unit="hPa" />
+          </TelemetryTile>
+
+          <TelemetryTile
             title="Wilgotność gleby"
             v-if="isDefined(soilMoistureDataSeries)"
-            class="row-span-3 col-start-2 row-start-2 min-h-0"
+            class="row-span-3 col-start-3 row-start-2 min-h-0"
             :icon="GlassWater"
             color="#007A5C"
           >

@@ -89,6 +89,8 @@ export const useTelemetryStore = defineStore("telemetry", () => {
   const latestLightIntensity = computed(
     () => latestEntry.value?.light_intensity,
   );
+  const latestAirPressure = computed(() => latestEntry.value?.air_pressure);
+  const latestUv = computed(() => latestEntry.value?.uv);
 
   return {
     fetch,
@@ -102,6 +104,8 @@ export const useTelemetryStore = defineStore("telemetry", () => {
     latestSoilTopMoisture,
     latestSoilMiddleMoisture,
     latestSoilBottomMoisture,
+    latestAirPressure,
+    latestUv,
     fetchedAt,
     telemetryEntries,
   };
