@@ -84,7 +84,7 @@ services:
       - MQTT_USERNAME
       - MQTT_PASSWORD
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.prod.conf:ro
+      - ./mosquitto.prod.conf:/mosquitto/config/mosquitto.conf:ro
       - ./mosquitto-secrets/passwd:/mosquitto/config/passwd:ro
       - ./mosquitto-secrets/acl:/mosquitto/config/acl:ro
       - ./mosquitto-secrets/certs:/mosquitto/config/certs:ro
