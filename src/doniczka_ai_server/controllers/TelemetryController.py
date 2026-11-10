@@ -67,9 +67,12 @@ class TelemetryController:
     def store_telemetry(self, telemetry_data: TelemetryCreate):
         telemetry = Telemetry(**telemetry_data.model_dump(), device_id=1)
 
-        with Session(
-            self.db_client, expire_on_commit=False
-        ) as session, session.begin():
-            session.add(telemetry)
+        try:
+            with Session(
+                self.db_client, expire_on_commit=False
+            ) as session, session.begin():
+                session.add(telemetry)
 
-        return telemetry
+            return telemetry
+        except Exception as e:
+            print(f"An error has occurred when saving a Telemetry entity: {e}")
