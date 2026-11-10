@@ -5,9 +5,10 @@ import type { Device } from "./index";
 import TelemetryTile from "./components/TelemetryTile.vue";
 import EventLog from "./components/EventLog.vue";
 import PlantOverview from "./components/PlantOverview.vue";
-import DataStatus from "./components/DataStatus.vue";
 import {
+  Camera,
   Droplets,
+  FileText,
   Gauge,
   GlassWater,
   Lightbulb,
@@ -16,6 +17,9 @@ import {
 } from "@lucide/vue";
 import TelemetryOverview from "./components/TelemetryOverview.vue";
 import StatusTile from "./components/StatusTile.vue";
+import SensorsStatusTile, {
+  type SensorStatus,
+} from "./components/SensorsStatusTile.vue";
 import { useTelemetryStore } from "./stores/telemetryStore.ts";
 import { storeToRefs } from "pinia";
 import { isDefined } from "@vueuse/core";
@@ -39,6 +43,7 @@ onMounted(async () => {
 });
 
 const {
+  latestEntry,
   latestTemp,
   latestAirHumidity,
   latestLightIntensity,
@@ -49,6 +54,7 @@ const {
   latestUv,
   fetchedAt,
   telemetryEntries,
+  latestPhoto,
 } = storeToRefs(telemetryStore);
 
 const soilMoistureDataSeries = computed(() => [
@@ -65,6 +71,48 @@ const soilMoistureDataSeries = computed(() => [
     value: latestSoilBottomMoisture.value,
   },
 ]);
+
+const sensorStatuses = computed<SensorStatus[]>(() => {
+  const latestTimestamp = latestEntry.value?.timestamp;
+
+  return [
+    {
+      id: "temperature",
+      icon: Thermometer,
+      timestamp: isDefined(latestTemp.value) ? latestTimestamp : null,
+    },
+    {
+      id: "air_humidity",
+      icon: Droplets,
+      timestamp: isDefined(latestAirHumidity.value) ? latestTimestamp : null,
+    },
+    {
+      id: "light_intensity",
+      icon: Lightbulb,
+      timestamp: isDefined(latestLightIntensity.value) ? latestTimestamp : null,
+    },
+    {
+      id: "uv",
+      icon: Sun,
+      timestamp: isDefined(latestUv.value) ? latestTimestamp : null,
+    },
+    {
+      id: "air_pressure",
+      icon: Gauge,
+      timestamp: isDefined(latestAirPressure.value) ? latestTimestamp : null,
+    },
+    {
+      id: "soil_moisture",
+      icon: GlassWater,
+      timestamp:
+        isDefined(latestSoilTopMoisture.value) ||
+        isDefined(latestSoilMiddleMoisture.value) ||
+        isDefined(latestSoilBottomMoisture.value)
+          ? latestTimestamp
+          : null,
+    },
+  ];
+});
 </script>
 
 <template>
@@ -74,25 +122,21 @@ const soilMoistureDataSeries = computed(() => [
         <div
           class="grid grid-cols-[1fr_1fr_3fr] grid-rows-[auto_repeat(3,1fr)] gap-6 min-h-0"
         >
-          <div class="flex items-center col-span-3 gap-4">
-            <DataStatus
-              :fetched-at="fetchedAt"
-              class="rounded-lg border border-gray-200"
-            />
+          <div class="flex flex-wrap items-center col-span-3 gap-4">
             <StatusTile
-              status="good"
-              title="Poziom wody"
-              good-status-text="OK"
-              bad-status-text="Brak"
-              class="rounded-lg border border-gray-200"
+              :icon="FileText"
+              title="Ostatni raport"
+              :timestamp="fetchedAt"
             />
+
             <StatusTile
-              status="good"
-              title="Połączenie"
-              good-status-text="OK"
-              bad-status-text="Brak"
-              class="rounded-lg border border-gray-200"
+              v-if="isDefined(latestPhoto)"
+              :icon="Camera"
+              title="Ostatnie wykonane zdjęcie"
+              :timestamp="latestPhoto.timestamp"
             />
+
+            <SensorsStatusTile :sensors="sensorStatuses" />
           </div>
 
           <TelemetryTile

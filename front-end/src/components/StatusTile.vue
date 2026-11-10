@@ -1,31 +1,46 @@
 <script setup lang="ts">
-import PulsatingDot from "./ui/PulsatingDot.vue";
-
-type Status = "good" | "bad";
+import { computed, type Component } from "vue";
+import { useDateFormat } from "@vueuse/core";
 
 const props = defineProps<{
-  status: Status;
+  icon: Component;
   title: string;
-  goodStatusText: string;
-  badStatusText: string;
+  timestamp: Date | string;
 }>();
+
+const formattedTimestamp = useDateFormat(
+  () => props.timestamp,
+  "DD.MM.YYYY HH:mm",
+);
+
+const isoDatetime = computed(() =>
+  props.timestamp instanceof Date
+    ? props.timestamp.toISOString()
+    : props.timestamp,
+);
 </script>
 
 <template>
-  <section
-    class="flex flex-col gap-4 py-2 px-4 sm:flex-row sm:items-center sm:justify-between"
+  <div
+    class="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-sm transition-colors duration-200 hover:border-slate-300 select-none"
+    :title="props.title"
   >
-    <div class="flex items-center gap-2">
-      <PulsatingDot />
-
-      <div>
-        <p class="font-semibold tracking-wide">
-          {{ title }}:
-          <code class="text-green-500 ml-1 uppercase">{{
-            props.status === "good" ? goodStatusText : badStatusText
-          }}</code>
-        </p>
-      </div>
+    <div
+      class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600"
+    >
+      <component :is="props.icon" class="size-4" aria-hidden="true" />
     </div>
-  </section>
+
+    <div class="min-w-0">
+      <p class="truncate text-xs font-medium text-slate-500">
+        {{ props.title }}
+      </p>
+      <time
+        :datetime="isoDatetime"
+        class="block whitespace-nowrap text-sm font-semibold tabular-nums text-slate-800"
+      >
+        {{ formattedTimestamp }}
+      </time>
+    </div>
+  </div>
 </template>
