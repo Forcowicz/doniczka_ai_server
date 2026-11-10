@@ -15,7 +15,7 @@ export const eventLogService = {
     };
 
     const res = await axios.get(
-      `${import.meta.env.VITE_API_URL}devices/${deviceId}/logs`,
+      `${import.meta.env.VITE_API_URL}/devices/${deviceId}/logs`,
       {
         params,
       },
