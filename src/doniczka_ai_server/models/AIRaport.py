@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 from sqlalchemy import (
     CheckConstraint,
     DateTime,
@@ -12,10 +12,13 @@ from sqlalchemy import (
     func,
 )
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from doniczka_ai_server.database.schemas import Base
 from doniczka_ai_server.enums.AIRaportEnums import AIRaportStatus
+
+if TYPE_CHECKING:
+    from doniczka_ai_server.models.PlantBadge import PlantBadge
 
 
 class AIRaport(Base):
@@ -23,9 +26,7 @@ class AIRaport(Base):
     __table_args__ = (CheckConstraint("health_score >= 1 AND health_score <= 10"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    device_id: Mapped[int] = mapped_column(
-        ForeignKey("devices.id", ondelete="CASCADE")
-    )
+    device_id: Mapped[int] = mapped_column(ForeignKey("devices.id", ondelete="CASCADE"))
     photo_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("plant_photos.id", ondelete="SET NULL"), nullable=True
     )
@@ -47,3 +48,7 @@ class AIRaport(Base):
     model_name: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     tokens_used: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     raw_response: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+
+    plant_badges: Mapped[list["PlantBadge"]] = relationship(
+        back_populates="ai_raport"
+    )

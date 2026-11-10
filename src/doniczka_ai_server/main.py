@@ -23,6 +23,7 @@ from doniczka_ai_server.models import (
     Telemetry,
     Telemetry1Hour,
 )
+from doniczka_ai_server.schemas.AIRaportSchemas import AIRaportRequest
 from doniczka_ai_server.schemas.DeviceSchemas import DeviceCreate, DeviceResponse
 from doniczka_ai_server.schemas.EventLogEntrySchemas import EventLogEntryResponse
 from doniczka_ai_server.schemas.PlantPhotoSchemas import (
@@ -30,7 +31,9 @@ from doniczka_ai_server.schemas.PlantPhotoSchemas import (
     PlantPhotoResponse,
 )
 from doniczka_ai_server.schemas.TelemetrySchemas import GetAllOptions
+from doniczka_ai_server.services import AIRaportService
 from doniczka_ai_server.services.S3Service import S3Service
+from doniczka_ai_server.services.ai_analyzer import GeminiAIAnalyzer
 
 
 @asynccontextmanager
@@ -48,7 +51,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # lub ["*"] na czas lokalnego developmentu
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -58,6 +61,18 @@ app.add_middleware(
 @app.get("/")
 async def root():
     pass
+
+
+@app.get("/test_ai")
+def test_ai():
+    # Temp
+    analyzer = GeminiAIAnalyzer()
+    service = AIRaportService(analyzer)
+    res = service.analyze(1)
+
+    print(res)
+
+    return {"status": "success", "message": "okoń"}
 
 
 @app.get("/devices/{id}")

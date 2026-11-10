@@ -1,6 +1,5 @@
 import os
 import uuid
-from datetime import datetime, timedelta
 from collections.abc import Sequence
 
 from sqlalchemy import Engine, select
@@ -12,7 +11,7 @@ from doniczka_ai_server.errors.controller_errors import (
 from doniczka_ai_server.models import PlantPhoto
 from doniczka_ai_server.schemas.PlantPhotoSchemas import PlantPhotoCreate
 from doniczka_ai_server.schemas.TelemetrySchemas import GetAllOptions
-from doniczka_ai_server.services.S3Service import S3Service
+
 
 
 class PlantPhotoController:
@@ -48,12 +47,12 @@ class PlantPhotoController:
             return session.scalars(stmt).all()
 
     def store(self, device_id: int, data: PlantPhotoCreate) -> PlantPhoto:
+        from doniczka_ai_server.services.S3Service import S3Service
+
         s3_service = S3Service.get_instance()
 
         extension = (
-            os.path.splitext(data.photo.filename)[1]
-            if data.photo.filename
-            else ""
+            os.path.splitext(data.photo.filename)[1] if data.photo.filename else ""
         )
         object_name = f"{uuid.uuid4()}{extension}"
 

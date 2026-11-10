@@ -122,7 +122,6 @@ const soilMoistureDataSeries = computed(() => [
             layout="row"
             :icon="Lightbulb"
             color="#f59e0b"
-            class="col-span-2"
           >
             <TelemetryTileScalar :value="latestLightIntensity" unit="LUX" />
           </TelemetryTile>
@@ -143,6 +142,7 @@ const soilMoistureDataSeries = computed(() => [
             layout="row"
             :icon="Gauge"
             color="#6366f1"
+            class="col-span-2"
           >
             <TelemetryTileScalar :value="latestAirPressure" unit="hPa" />
           </TelemetryTile>

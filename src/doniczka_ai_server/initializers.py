@@ -3,6 +3,7 @@ import os
 from sqlalchemy import Engine
 
 from doniczka_ai_server.controllers import (
+    AIRaportController,
     DeviceController,
     EventLogEntryController,
     PlantPhotoController,
@@ -29,6 +30,7 @@ def initialize_database(engine: Engine) -> None:
 
 
 def initialize_controllers(engine: Engine) -> None:
+    AIRaportController.initialize(engine)
     DeviceController.initialize(engine)
     TelemetryController.initialize(engine)
     PlantPhotoController.initialize(engine)
