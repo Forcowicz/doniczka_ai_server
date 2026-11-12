@@ -54,6 +54,7 @@ const {
   latestUv,
   fetchedAt,
   telemetryEntries,
+  latestRaport,
   latestPhoto,
 } = storeToRefs(telemetryStore);
 
@@ -118,9 +119,9 @@ const sensorStatuses = computed<SensorStatus[]>(() => {
 <template>
   <main class="p-12 h-full">
     <div class="grid grid-rows-[50%_1fr] grid-cols-1 h-full min-h-0 gap-12">
-      <div class="grid grid-cols-[65%_1fr] gap-12 min-h-0">
+      <div class="grid grid-cols-[60%_1fr] gap-12 min-h-0">
         <div
-          class="grid grid-cols-[1fr_1fr_3fr] grid-rows-[auto_repeat(3,1fr)] gap-6 min-h-0"
+          class="grid grid-cols-[1fr_1fr_1.5fr] grid-rows-[auto_repeat(3,1fr)] gap-6 min-h-0"
         >
           <div class="flex flex-wrap items-center col-span-3 gap-4">
             <StatusTile
@@ -166,7 +167,6 @@ const sensorStatuses = computed<SensorStatus[]>(() => {
             layout="row"
             :icon="Lightbulb"
             color="#f59e0b"
-            class="col-span-2"
           >
             <TelemetryTileScalar :value="latestLightIntensity" unit="LUX" />
           </TelemetryTile>
@@ -187,6 +187,7 @@ const sensorStatuses = computed<SensorStatus[]>(() => {
             layout="row"
             :icon="Gauge"
             color="#6366f1"
+            class="col-span-2"
           >
             <TelemetryTileScalar :value="latestAirPressure" unit="hPa" />
           </TelemetryTile>
@@ -209,18 +210,23 @@ const sensorStatuses = computed<SensorStatus[]>(() => {
           </TelemetryTile>
         </div>
 
-        <PlantOverview v-if="device" :device="device" class="min-h-0" />
+        <PlantOverview
+          v-if="device"
+          :device="device"
+          :raport="latestRaport"
+          class="min-h-0"
+        />
       </div>
 
       <div class="grid grid-cols-[75%_1fr] gap-12 min-h-0">
         <TelemetryOverview
           :entries="telemetryEntries"
-          class="h-full w-full border rounded-lg border-gray-200"
+          class="h-full w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
         />
 
         <EventLog
           :entries="eventLogStore.entries"
-          class="border rounded-lg border-gray-200 h-full min-h-0"
+          class="h-full min-h-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
         />
       </div>
     </div>

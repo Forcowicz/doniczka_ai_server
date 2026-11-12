@@ -18,6 +18,7 @@ services:
       - AWS_BUCKET_NAME
       - AWS_REGION
       - APP_ENV
+      - GEMINI_API_KEY
     depends_on:
       postgres-doniczka:
         condition: service_healthy

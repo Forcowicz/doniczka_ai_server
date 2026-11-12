@@ -1,35 +1,36 @@
 <script setup lang="ts">
 import { useElementHover } from "@vueuse/core";
-import type { Severity } from "..";
-import { getSeverityColor } from "../helpers";
-import PlantBadgeTooltip from "./PlantBadgeTooltip.vue";
 import { computed, useTemplateRef } from "vue";
+import type { PlantBadge } from "..";
+import { getSeverityMeta } from "../helpers";
+import PlantBadgeTooltip from "./PlantBadgeTooltip.vue";
 
 const props = defineProps<{
-  title: string;
-  content?: string;
-  severity: Severity;
-  timestamp: string;
+  data: PlantBadge;
 }>();
 
 const isHovered = useElementHover(useTemplateRef("badge"));
 
-const tooltipVisibilityClasses = computed(() => ({
-  "visible opacity-100": isHovered.value,
-}));
+const meta = computed(() => getSeverityMeta(props.data.severity));
+
+const tooltipVisibilityClasses = computed(() =>
+  isHovered.value
+    ? "visible opacity-100 translate-y-0"
+    : "invisible opacity-0 translate-y-1",
+);
 </script>
 
 <template>
   <div
     ref="badge"
-    class="rounded-md text-sm px-2 py-0.5 select-none tracking-tight leading-snug relative cursor-default"
-    :style="{ backgroundColor: `${getSeverityColor(props.severity)}7A` }"
+    class="relative inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium tracking-tight select-none cursor-default transition-all duration-150 hover:shadow-xs"
+    :class="meta.badgeClass"
   >
-    <span>{{ props.title }}</span>
+    <span>{{ props.data.title }}</span>
 
     <PlantBadgeTooltip
-      v-bind="props"
-      class="absolute top-[125%] left-0 z-30 transition-all duration-150 invisible opacity-0"
+      :data="props.data"
+      class="absolute top-[calc(100%+8px)] left-0 z-30 transition-all duration-150 ease-out"
       :class="tooltipVisibilityClasses"
     />
   </div>

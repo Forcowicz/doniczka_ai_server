@@ -56,3 +56,10 @@ class S3Service:
             )
         except Exception as e:
             return None
+
+    def download_file(self, object_name: str, target_path: str) -> bool:
+        try:
+            self._client.download_file(self.bucket, object_name, target_path)
+            return True
+        except Exception as e:
+            return False
