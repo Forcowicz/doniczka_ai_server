@@ -16,7 +16,9 @@ type MetricKey =
   | "temperature"
   | "air humidity"
   | "soil moisture"
-  | "light intensity";
+  | "light intensity"
+  | "uv"
+  | "air pressure";
 
 const selectedMetric: Ref<MetricKey> = ref("temperature");
 const selectedPeriod: Ref<string> = ref(String(TelemetryPeriod.DAY));
@@ -26,6 +28,8 @@ const metricOptions: DropdownOption[] = [
   { value: "air humidity", label: "Wilgotność powietrza" },
   { value: "soil moisture", label: "Wilgotność gleby" },
   { value: "light intensity", label: "Natężenie światła" },
+  { value: "uv", label: "UV" },
+  { value: "air pressure", label: "Ciśnienie atmosferyczne" },
 ];
 
 const periodOptions: DropdownOption[] = [
@@ -45,6 +49,10 @@ const seriesName = computed(() => {
       return "Wilgotność gleby";
     case "light intensity":
       return "Naświetlenie";
+    case "uv":
+      return "UV";
+    case "air pressure":
+      return "Ciśnienie atmosferyczne";
   }
 });
 
@@ -58,6 +66,10 @@ const unit = computed(() => {
       return "%";
     case "light intensity":
       return "LUX";
+    case "uv":
+      return "UV";
+    case "air pressure":
+      return "hPa";
   }
 });
 
@@ -97,6 +109,20 @@ const filteredEntries = computed(() => {
         {
           title: "Naświetlenie",
           series: [...props.entries].map(e => e.avg_light_intensity),
+        },
+      ];
+    case "uv":
+      return [
+        {
+          title: "UV",
+          series: [...props.entries].map(e => e.avg_uv),
+        },
+      ];
+    case "air pressure":
+      return [
+        {
+          title: "Ciśnienie atmosferyczne",
+          series: [...props.entries].map(e => e.avg_air_pressure),
         },
       ];
   }

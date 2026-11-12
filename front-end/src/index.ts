@@ -25,6 +25,8 @@ export interface TelemetryBucket {
   avg_light_intensity: number | null;
   avg_soil_top_humidity: number | null;
   avg_soil_bottom_humidity: number | null;
+  avg_uv: number | null;
+  avg_air_pressure: number | null;
   bucket: string;
 }
 
