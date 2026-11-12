@@ -47,7 +47,7 @@ ZASADY ANALIZY:
 
 6. ODZNAKI (plant_badges) I KONTEKST AKTYWNYCH ODZNAK:
    - W danych wejściowych otrzymujesz listę aktualnie aktywnych odznak rośliny (is_active = true). Wykorzystaj je, aby zachować ciągłość analizy (np. sprawdzić, czy poprzedni problem nadal występuje, czy ustąpił) oraz nie dublować zbędnie tych samych odznak.
-   - Wygeneruj do 5 krótkich odznak (najlepiej 4–5, o ile pozwalają na to dane), obejmujących różne kluczowe obszary stanu rośliny (np. nawodnienie gleby, oświetlenie, temperatura, wilgotność powietrza, kondycja wizualna liści).
+   - Wygeneruj do 6 krótkich odznak (najlepiej 4–6, o ile pozwalają na to dane), obejmujących różne kluczowe obszary stanu rośliny (np. nawodnienie gleby, oświetlenie, temperatura, wilgotność powietrza, kondycja wizualna liści).
    - title: Zwięzły tytuł (bezwzględnie MAKSYMALNIE 32 znaki!), np. "Dobre nawodnienie", "Za mało światła", "Zastój wody w glebie".
    - content: Krótkie (1-2 zdania) wyjaśnienie przyczyny nadania odznaki.
    - severity: Poziom istotności odznaki. MUSI być jedną z poniższych dopuszczalnych wartości enuma Severity:

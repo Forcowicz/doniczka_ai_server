@@ -55,20 +55,6 @@ function onImageError() {
             />
           </div>
         </div>
-
-        <div
-          v-if="props.raport?.summary"
-          class="min-h-0 overflow-y-auto rounded-xl border border-slate-100 bg-slate-50/80 px-3.5 py-2.5"
-        >
-          <p
-            class="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400"
-          >
-            Podsumowanie AI
-          </p>
-          <p class="text-xs leading-relaxed text-slate-600">
-            {{ props.raport.summary }}
-          </p>
-        </div>
       </div>
 
       <div
