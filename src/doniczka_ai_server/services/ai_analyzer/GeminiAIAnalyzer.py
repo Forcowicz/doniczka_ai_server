@@ -47,7 +47,7 @@ ZASADY ANALIZY:
 
 6. ODZNAKI (plant_badges) I KONTEKST AKTYWNYCH ODZNAK:
    - W danych wejściowych otrzymujesz listę aktualnie aktywnych odznak rośliny (is_active = true). Wykorzystaj je, aby zachować ciągłość analizy (np. sprawdzić, czy poprzedni problem nadal występuje, czy ustąpił) oraz nie dublować zbędnie tych samych odznak.
-   - Wygeneruj od 2 do 5 krótkich odznak podsumowujących najważniejsze aspekty stanu rośliny.
+   - Wygeneruj do 5 krótkich odznak (najlepiej 4–5, o ile pozwalają na to dane), obejmujących różne kluczowe obszary stanu rośliny (np. nawodnienie gleby, oświetlenie, temperatura, wilgotność powietrza, kondycja wizualna liści).
    - title: Zwięzły tytuł (bezwzględnie MAKSYMALNIE 32 znaki!), np. "Dobre nawodnienie", "Za mało światła", "Zastój wody w glebie".
    - content: Krótkie (1-2 zdania) wyjaśnienie przyczyny nadania odznaki.
    - severity: Poziom istotności odznaki. MUSI być jedną z poniższych dopuszczalnych wartości enuma Severity:
@@ -125,6 +125,8 @@ ZASADY ANALIZY:
         return result
 
     def _validate_and_normalize_output(self, output: AIRaportModelOutput) -> None:
+        output.plant_badges = output.plant_badges[:5]
+
         valid_severity_names = set(Severity.__members__.keys())
         valid_severity_values = {str(s.value): s.name for s in Severity}
 

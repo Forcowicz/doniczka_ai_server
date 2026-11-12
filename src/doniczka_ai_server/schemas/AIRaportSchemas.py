@@ -27,7 +27,7 @@ class AIRaportModelOutput(BaseModel):
     recommendations: str
     health_score: int = Field(..., ge=1, le=10)
 
-    plant_badges: List["PlantBadgeModelOutput"]
+    plant_badges: List["PlantBadgeModelOutput"] = Field(..., min_length=1, max_length=5)
 
 
 class AIRaportModelResponse(AIRaportModelOutput):

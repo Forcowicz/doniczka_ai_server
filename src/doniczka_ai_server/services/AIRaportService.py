@@ -148,8 +148,8 @@ class AIRaportService:
 
             model_response = self.analyzer.analyze(ai_request)
 
-            # 6. Zapisanie wygenerowanych odznak (plant_badges) w bazie danych
-            for badge in model_response.plant_badges:
+            # 6. Zapisanie wygenerowanych odznak (plant_badges) w bazie danych (maks. 5)
+            for badge in model_response.plant_badges[:5]:
                 badge_severity = (
                     Severity[badge.severity]
                     if badge.severity in Severity.__members__
