@@ -22,7 +22,7 @@ const emit = defineEmits<{
     <select
       :value="modelValue"
       :aria-label="ariaLabel"
-      class="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 pr-11 text-sm font-medium text-slate-700 shadow-sm outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+      class="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3.5 py-2 pr-9 text-xs font-medium text-slate-700 shadow-xs outline-none transition cursor-pointer hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
       @change="
         emit(
           'update:modelValue',
@@ -40,7 +40,7 @@ const emit = defineEmits<{
     </select>
 
     <ChevronDown
-      class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+      class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
       aria-hidden="true"
     />
   </div>

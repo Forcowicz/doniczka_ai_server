@@ -73,59 +73,103 @@ const unit = computed(() => {
   }
 });
 
+const metricColors = computed<string[]>(() => {
+  switch (selectedMetric.value) {
+    case "temperature":
+      return ["#f97316"];
+    case "air humidity":
+      return ["#0ea5e9"];
+    case "soil moisture":
+      return ["#34d399", "#007A5C", "#065f46"];
+    case "light intensity":
+      return ["#f59e0b"];
+    case "uv":
+      return ["#a855f7"];
+    case "air pressure":
+      return ["#6366f1"];
+  }
+});
+
 const filteredEntries = computed(() => {
   switch (selectedMetric.value) {
     case "temperature":
       return [
         {
           title: "Temperatura",
-          series: [...props.entries].map(e => e.avg_temperature),
+          series: props.entries.map(e => e.avg_temperature),
         },
       ];
     case "air humidity":
       return [
         {
           title: "Wilgotność powietrza",
-          series: [...props.entries].map(e => e.avg_air_humidity),
+          series: props.entries.map(e => e.avg_air_humidity),
         },
       ];
     case "soil moisture":
       return [
         {
           title: "Góra",
-          series: [...props.entries].map(e => e.avg_soil_top_humidity),
+          series: props.entries.map(e => e.avg_soil_top_humidity),
         },
         {
           title: "Środek",
-          series: [...props.entries].map(e => e.avg_soil_middle_humidity),
+          series: props.entries.map(e => e.avg_soil_middle_humidity),
         },
         {
           title: "Dół",
-          series: [...props.entries].map(e => e.avg_soil_bottom_humidity),
+          series: props.entries.map(e => e.avg_soil_bottom_humidity),
         },
       ];
     case "light intensity":
       return [
         {
           title: "Naświetlenie",
-          series: [...props.entries].map(e => e.avg_light_intensity),
+          series: props.entries.map(e => e.avg_light_intensity),
         },
       ];
     case "uv":
       return [
         {
           title: "UV",
-          series: [...props.entries].map(e => e.avg_uv),
+          series: props.entries.map(e => e.avg_uv),
         },
       ];
     case "air pressure":
       return [
         {
           title: "Ciśnienie atmosferyczne",
-          series: [...props.entries].map(e => e.avg_air_pressure),
+          series: props.entries.map(e => e.avg_air_pressure),
         },
       ];
   }
+});
+
+const summaryStats = computed(() => {
+  const values = filteredEntries.value
+    .flatMap(entry => entry.series)
+    .filter((v): v is number => v !== null && v !== undefined && !Number.isNaN(v));
+
+  if (values.length === 0) return null;
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const avg = values.reduce((acc, v) => acc + v, 0) / values.length;
+
+  const formatVal = (val: number) => {
+    const formatted = Number.isInteger(val)
+      ? String(val)
+      : val.toFixed(1).replace(/\.0$/, "");
+    const suffix =
+      unit.value === "°C" || unit.value === "%" ? unit.value : ` ${unit.value}`;
+    return `${formatted}${suffix}`;
+  };
+
+  return {
+    min: formatVal(min),
+    avg: formatVal(avg),
+    max: formatVal(max),
+  };
 });
 
 const timeFormatterStr = computed(() => {
@@ -138,6 +182,8 @@ const timeFormatterStr = computed(() => {
       return "D MMM";
     case "365":
       return "MMMM";
+    default:
+      return "HH:mm";
   }
 });
 
@@ -154,26 +200,89 @@ watch(
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <div class="flex items-center gap-4 pl-12 pt-4">
-      <Dropdown
-        v-model="selectedMetric"
-        :options="metricOptions"
-        aria-label="Wybierz rodzaj pomiaru"
-      />
+  <div class="flex flex-col h-full min-h-0 bg-white overflow-hidden">
+    <!-- Header -->
+    <div
+      class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 px-5 py-3.5 shrink-0"
+    >
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+        <div class="flex items-center gap-2">
+          <span
+            class="size-2.5 rounded-full shrink-0"
+            :style="{ backgroundColor: metricColors[0] }"
+          />
+          <h3 class="font-semibold text-sm text-slate-800">
+            Historia pomiarów
+          </h3>
+        </div>
 
-      <Dropdown
-        v-model="selectedPeriod"
-        :options="periodOptions"
-        aria-label="Wybierz okres pomiaru"
-      />
+        <div
+          v-if="summaryStats"
+          class="hidden sm:flex items-center gap-2.5 text-xs text-slate-400 border-l border-slate-200 pl-4"
+        >
+          <span>
+            Min:
+            <strong class="font-semibold text-slate-700">{{
+              summaryStats.min
+            }}</strong>
+          </span>
+          <span aria-hidden="true">·</span>
+          <span>
+            Śr:
+            <strong class="font-semibold text-slate-700">{{
+              summaryStats.avg
+            }}</strong>
+          </span>
+          <span aria-hidden="true">·</span>
+          <span>
+            Max:
+            <strong class="font-semibold text-slate-700">{{
+              summaryStats.max
+            }}</strong>
+          </span>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <Dropdown
+          v-model="selectedMetric"
+          :options="metricOptions"
+          aria-label="Wybierz rodzaj pomiaru"
+          class="!w-48"
+        />
+
+        <div
+          class="inline-flex items-center rounded-xl bg-slate-100 p-1"
+          role="group"
+          aria-label="Wybierz okres pomiaru"
+        >
+          <button
+            v-for="option in periodOptions"
+            :key="option.value"
+            type="button"
+            class="rounded-lg px-3 py-1.5 text-xs font-medium transition-all cursor-pointer"
+            :class="
+              selectedPeriod === option.value
+                ? 'bg-white text-slate-900 shadow-xs'
+                : 'text-slate-500 hover:text-slate-800'
+            "
+            @click="selectedPeriod = option.value"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
     </div>
 
-    <TelemetryChart
-      :series-name="seriesName"
-      :entries="filteredEntries"
-      :unit="unit"
-      :timestamps="timestamps"
-    />
+    <!-- Chart -->
+    <div class="flex-1 min-h-0 p-3">
+      <TelemetryChart
+        :series-name="seriesName"
+        :entries="filteredEntries"
+        :unit="unit"
+        :timestamps="timestamps"
+        :colors="metricColors"
+      />
+    </div>
   </div>
 </template>
