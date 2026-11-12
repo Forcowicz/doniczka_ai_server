@@ -90,56 +90,62 @@ const metricColors = computed<string[]>(() => {
   }
 });
 
+const sortedEntries = computed(() =>
+  [...props.entries].sort(
+    (a, b) => new Date(a.bucket).getTime() - new Date(b.bucket).getTime(),
+  ),
+);
+
 const filteredEntries = computed(() => {
   switch (selectedMetric.value) {
     case "temperature":
       return [
         {
           title: "Temperatura",
-          series: props.entries.map(e => e.avg_temperature),
+          series: sortedEntries.value.map(e => e.avg_temperature),
         },
       ];
     case "air humidity":
       return [
         {
           title: "Wilgotność powietrza",
-          series: props.entries.map(e => e.avg_air_humidity),
+          series: sortedEntries.value.map(e => e.avg_air_humidity),
         },
       ];
     case "soil moisture":
       return [
         {
           title: "Góra",
-          series: props.entries.map(e => e.avg_soil_top_humidity),
+          series: sortedEntries.value.map(e => e.avg_soil_top_humidity),
         },
         {
           title: "Środek",
-          series: props.entries.map(e => e.avg_soil_middle_humidity),
+          series: sortedEntries.value.map(e => e.avg_soil_middle_humidity),
         },
         {
           title: "Dół",
-          series: props.entries.map(e => e.avg_soil_bottom_humidity),
+          series: sortedEntries.value.map(e => e.avg_soil_bottom_humidity),
         },
       ];
     case "light intensity":
       return [
         {
           title: "Naświetlenie",
-          series: props.entries.map(e => e.avg_light_intensity),
+          series: sortedEntries.value.map(e => e.avg_light_intensity),
         },
       ];
     case "uv":
       return [
         {
           title: "UV",
-          series: props.entries.map(e => e.avg_uv),
+          series: sortedEntries.value.map(e => e.avg_uv),
         },
       ];
     case "air pressure":
       return [
         {
           title: "Ciśnienie atmosferyczne",
-          series: props.entries.map(e => e.avg_air_pressure),
+          series: sortedEntries.value.map(e => e.avg_air_pressure),
         },
       ];
   }
@@ -188,7 +194,9 @@ const timeFormatterStr = computed(() => {
 });
 
 const timestamps = computed(() =>
-  props.entries.map(e => useDateFormat(e.bucket, timeFormatterStr.value).value),
+  sortedEntries.value.map(
+    e => useDateFormat(e.bucket, timeFormatterStr.value).value,
+  ),
 );
 
 watch(

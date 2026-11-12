@@ -53,9 +53,13 @@ class TelemetryController:
             options.period
         )
 
-        stmt = select(TelemetryView).where(
-            TelemetryView.device_id == device_id,
-            TelemetryView.bucket >= text(f"NOW() - INTERVAL '{interval}'"),
+        stmt = (
+            select(TelemetryView)
+            .where(
+                TelemetryView.device_id == device_id,
+                TelemetryView.bucket >= text(f"NOW() - INTERVAL '{interval}'"),
+            )
+            .order_by(TelemetryView.bucket.asc())
         )
 
         if options.limit is not None:
