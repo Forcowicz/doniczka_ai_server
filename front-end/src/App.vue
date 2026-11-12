@@ -125,9 +125,10 @@ const sensorStatuses = computed<SensorStatus[]>(() => {
         >
           <div class="flex flex-wrap items-center col-span-3 gap-4">
             <StatusTile
+              v-if="isDefined(latestRaport)"
               :icon="FileText"
               title="Ostatni raport"
-              :timestamp="fetchedAt"
+              :timestamp="latestRaport.finished_at!"
             />
 
             <StatusTile
