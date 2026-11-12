@@ -1,29 +1,18 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useDateFormat } from "@vueuse/core";
-import type { Severity } from "..";
+import type { PlantBadge, Severity } from "..";
 import { getSeverityMeta } from "../helpers";
 
-const props = withDefaults(
-  defineProps<{
-    title?: string;
-    content?: string;
-    severity?: Severity;
-    timestamp?: string;
-  }>(),
-  {
-    title: "",
-    content: "",
-    severity: 2,
-    timestamp: "",
-  },
-);
+const props = defineProps<{
+  data: PlantBadge;
+}>();
 
-const meta = computed(() => getSeverityMeta(props.severity));
+const meta = computed(() => getSeverityMeta(props.data.severity));
 
 const formattedTimestamp = computed(() => {
-  if (!props.timestamp) return "";
-  return useDateFormat(props.timestamp, "DD.MM.YYYY HH:mm").value;
+  if (!props.data.timestamp) return "";
+  return useDateFormat(props.data.timestamp, "DD.MM.YYYY HH:mm").value;
 });
 </script>
 
@@ -57,7 +46,7 @@ const formattedTimestamp = computed(() => {
 
           <time
             v-if="formattedTimestamp"
-            :datetime="props.timestamp"
+            :datetime="data.timestamp"
             class="text-[11px] text-gray-400 font-medium whitespace-nowrap"
           >
             {{ formattedTimestamp }}
@@ -65,17 +54,17 @@ const formattedTimestamp = computed(() => {
         </div>
 
         <h4
-          v-if="props.title"
+          v-if="data.title"
           class="text-xs font-semibold text-gray-900 leading-snug break-words"
         >
-          {{ props.title }}
+          {{ data.title }}
         </h4>
 
         <p
-          v-if="props.content && props.content !== props.title"
+          v-if="data.content && data.content !== data.title"
           class="text-xs text-gray-600 leading-relaxed font-normal mt-1 break-words"
         >
-          {{ props.content }}
+          {{ data.content }}
         </p>
       </div>
     </div>

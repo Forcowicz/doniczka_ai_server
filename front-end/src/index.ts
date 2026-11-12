@@ -59,3 +59,43 @@ export enum Severity {
   WARNING = 3,
   CRITICAL = 4,
 }
+
+export const AIRaportStatus = {
+  CREATED: "created",
+  PENDING: "pending",
+  SUCCESS: "success",
+  FAILED: "failed",
+} as const;
+
+export type AIRaportStatus =
+  (typeof AIRaportStatus)[keyof typeof AIRaportStatus];
+
+export interface PlantBadge {
+  id: number;
+  device_id: number;
+  ai_raport_id: number | null;
+  is_active: boolean;
+  title: string;
+  content: string | null;
+  severity: Severity;
+  timestamp: string;
+}
+
+export interface AIRaport {
+  id: number;
+  device_id: number;
+  photo_id: number | null;
+  period_start: string;
+  period_end: string;
+  summary: string | null;
+  recommendations: string | null;
+  health_score: number | null;
+  status: AIRaportStatus;
+  created_at: string;
+  finished_at: string | null;
+  error: string | null;
+  model_name: string | null;
+  tokens_used: number | null;
+  raw_response: Record<string, unknown> | string | null;
+  plant_badges: PlantBadge[];
+}

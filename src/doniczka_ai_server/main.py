@@ -3,6 +3,7 @@ from fastapi.params import Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Annotated, Optional, Sequence
 from doniczka_ai_server.controllers import (
+    AIRaportController,
     DeviceController,
     EventLogEntryController,
     PlantPhotoController,
@@ -21,9 +22,12 @@ from doniczka_ai_server.models import (
     EventLogEntry,
     PlantPhoto,
     Telemetry,
-    Telemetry1Hour,
+    TelemetryBucket,
 )
-from doniczka_ai_server.schemas.AIRaportSchemas import AIRaportRequest
+from doniczka_ai_server.schemas.AIRaportSchemas import (
+    AIRaportGetAllOptions,
+    AIRaportResponse,
+)
 from doniczka_ai_server.schemas.DeviceSchemas import DeviceCreate, DeviceResponse
 from doniczka_ai_server.schemas.EventLogEntrySchemas import EventLogEntryResponse
 from doniczka_ai_server.schemas.PlantPhotoSchemas import (
@@ -56,23 +60,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.get("/")
-async def root():
-    pass
-
-
-@app.get("/test_ai")
-def test_ai():
-    # Temp
-    analyzer = GeminiAIAnalyzer()
-    service = AIRaportService(analyzer)
-    res = service.analyze(1)
-
-    print(res)
-
-    return {"status": "success", "message": "okoń"}
 
 
 @app.get("/devices/{id}")
@@ -127,7 +114,7 @@ def delete_device(id: int):
 def get_telemetry(id: int, options: Annotated[GetAllOptions, Query()]):
     controller: TelemetryController = TelemetryController.get_instance()
 
-    telemetry: Sequence[Telemetry1Hour] = controller.get_time_buckets(id, options)
+    telemetry: Sequence[TelemetryBucket] = controller.get_time_buckets(id, options)
 
     return {
         "status": "success",
@@ -221,4 +208,28 @@ def get_all_event_logs(
     return {
         "status": "success",
         "data": {"logs": log_responses, "event_logs": log_responses},
+    }
+
+
+@app.post("/devices/{id}/raports")
+def trigger_raport_generation(id: int):
+    analyzer = GeminiAIAnalyzer()
+    service = AIRaportService(analyzer)
+    raport: AIRaportResponse = service.analyze(id)
+
+    return {"status": "success", "data": raport}
+
+
+@app.get("/devices/{id}/raports")
+def get_device_raports(
+    id: int,
+    options: Annotated[AIRaportGetAllOptions, Query()] = AIRaportGetAllOptions(),
+):
+    controller: AIRaportController = AIRaportController.get_instance()
+
+    raports: Sequence[AIRaportResponse] = controller.get_all(id, options)
+
+    return {
+        "status": "success",
+        "data": {"raports": raports},
     }

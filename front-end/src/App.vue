@@ -49,6 +49,7 @@ const {
   latestUv,
   fetchedAt,
   telemetryEntries,
+  latestRaport,
 } = storeToRefs(telemetryStore);
 
 const soilMoistureDataSeries = computed(() => [
@@ -165,7 +166,12 @@ const soilMoistureDataSeries = computed(() => [
           </TelemetryTile>
         </div>
 
-        <PlantOverview v-if="device" :device="device" class="min-h-0" />
+        <PlantOverview
+          v-if="device"
+          :device="device"
+          :raport="latestRaport"
+          class="min-h-0"
+        />
       </div>
 
       <div class="grid grid-cols-[75%_1fr] gap-12 min-h-0">

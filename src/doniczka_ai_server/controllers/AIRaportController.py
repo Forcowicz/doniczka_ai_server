@@ -8,9 +8,10 @@ from doniczka_ai_server.errors.controller_errors import (
     ControllerNotInstantiatedException,
 )
 from doniczka_ai_server.errors.model_errors import InstanceNotFoundException
-from doniczka_ai_server.models import AIRaport
+from doniczka_ai_server.models import AIRaport, PlantBadge
 from doniczka_ai_server.schemas.AIRaportSchemas import (
     AIRaportCreate,
+    AIRaportGetAllOptions,
     AIRaportResponse,
     AIRaportUpdate,
 )
@@ -48,17 +49,24 @@ class AIRaportController:
 
     def get_all(
         self,
-        device_id: Optional[int] = None,
-        options: Optional[GetAllOptions] = None,
+        device_id: int,
+        options: Optional[AIRaportGetAllOptions | GetAllOptions] = None,
     ) -> Sequence[AIRaportResponse]:
-        stmt = (
-            select(AIRaport)
-            .options(selectinload(AIRaport.plant_badges))
-            .order_by(AIRaport.created_at.desc())
+        order = getattr(options, "order", "desc") if options else "desc"
+        order_clause = (
+            AIRaport.finished_at.asc().nulls_last()
+            if order == "asc"
+            else AIRaport.finished_at.desc().nulls_last()
         )
 
-        if device_id is not None:
-            stmt = stmt.where(AIRaport.device_id == device_id)
+        stmt = (
+            select(AIRaport)
+            .options(
+                selectinload(AIRaport.plant_badges.and_(PlantBadge.is_active.is_(True)))
+            )
+            .where(AIRaport.device_id == device_id)
+            .order_by(order_clause, AIRaport.created_at.desc())
+        )
 
         if options and options.limit:
             stmt = stmt.limit(options.limit)

@@ -34,7 +34,7 @@ class AIRaport(Base):
     period_end: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     recommendations: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    health_score: Mapped[int] = mapped_column(SmallInteger)
+    health_score: Mapped[Optional[int]] = mapped_column(SmallInteger, nullable=True)
     status: Mapped[AIRaportStatus] = mapped_column(
         Enum(AIRaportStatus), nullable=False, default=AIRaportStatus.PENDING, index=True
     )

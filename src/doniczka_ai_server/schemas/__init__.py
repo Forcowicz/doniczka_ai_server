@@ -9,9 +9,14 @@ from .AIRaportSchemas import (
     AIRaportResponse,
     AIRaportCreate,
     AIRaportUpdate,
+    AIRaportGetAllOptions,
     AIResponseRequest,
 )
-from .PlantBadgeSchemas import PlantBadgeModelOutput, PlantBadgeResponse
+from .PlantBadgeSchemas import (
+    PlantBadgeCreate,
+    PlantBadgeModelOutput,
+    PlantBadgeResponse,
+)
 
 __all__ = [
     "DeviceCreate",
@@ -28,6 +33,8 @@ __all__ = [
     "AIRaportResponse",
     "AIRaportCreate",
     "AIRaportUpdate",
+    "AIRaportGetAllOptions",
+    "PlantBadgeCreate",
     "PlantBadgeModelOutput",
     "PlantBadgeResponse",
 ]

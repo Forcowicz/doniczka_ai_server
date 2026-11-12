@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -15,6 +15,7 @@ class AIRaportRequest(BaseModel):
     device_id: int
     plant: Dict[str, Any] = Field(default_factory=dict)
     telemetry_daily: Dict[str, Any] = Field(default_factory=dict)
+    active_badges: List[PlantBadgeResponse] = Field(default_factory=list)
     photo_path: str = ""
 
 
@@ -45,7 +46,7 @@ class AIRaportResponse(BaseModel):
     period_end: datetime
     summary: Optional[str] = None
     recommendations: Optional[str] = None
-    health_score: int
+    health_score: Optional[int] = None
     status: AIRaportStatus
     created_at: datetime
     finished_at: Optional[datetime] = None
@@ -75,7 +76,7 @@ class AIRaportCreate(BaseModel):
     device_id: int
     period_start: datetime
     period_end: datetime
-    health_score: int = Field(..., ge=1, le=10)
+    health_score: Optional[int] = Field(default=None, ge=1, le=10)
     photo_id: Optional[int] = None
     summary: Optional[str] = None
     recommendations: Optional[str] = None
@@ -107,3 +108,15 @@ class AIRaportUpdate(BaseModel):
     @classmethod
     def validate_raw_response(cls, value: Any) -> Optional[dict[str, Any]]:
         return _parse_raw_response(value)
+
+
+class AIRaportGetAllOptions(BaseModel):
+    limit: Optional[int] = None
+    order: Literal["asc", "desc"] = "desc"
+
+    @field_validator("order", mode="before")
+    @classmethod
+    def normalize_order(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            return value.strip().lower()
+        return value

@@ -2,16 +2,15 @@
 import { computed, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { Camera } from "@lucide/vue";
-import { Severity, type Device } from "..";
+import { Severity, type AIRaport, type Device } from "..";
 import { useTelemetryStore } from "../stores/telemetryStore.ts";
 import plantImgPlaceholder from "../assets/plant_image_placeholder.jpg";
 import PlantBadge from "./PlantBadge.vue";
-
-const healthScore = 8;
-const healthLabel = "Bardzo dobry";
+import { isDefined } from "@vueuse/core";
 
 const props = defineProps<{
   device: Device;
+  raport?: AIRaport;
 }>();
 
 const telemetryStore = useTelemetryStore();
@@ -33,22 +32,7 @@ function onImageError() {
   imageSrc.value = plantImgPlaceholder;
 }
 
-const formattedPhotoDate = computed(() => {
-  if (!latestPhoto.value?.timestamp) {
-    return null;
-  }
-  const date = new Date(latestPhoto.value.timestamp);
-  if (isNaN(date.getTime())) {
-    return null;
-  }
-  return new Intl.DateTimeFormat("pl-PL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-});
+console.log(props.raport);
 </script>
 
 <template>
@@ -63,42 +47,26 @@ const formattedPhotoDate = computed(() => {
             {{ props.device.name }}
           </h2>
 
-          <div class="mt-3 flex gap-2 items-center flex-wrap">
+          <div
+            class="mt-3 flex gap-2 items-center flex-wrap"
+            v-if="isDefined(props.raport?.plant_badges)"
+          >
             <PlantBadge
-              title="Dobre nawodnenie"
-              :severity="1"
-              :timestamp="new Date().toDateString()"
-              content="Doniczka jest niesamowicie dobrze nawodniona!"
-            />
-
-            <PlantBadge
-              title="Za mało światła"
-              :severity="3"
-              :timestamp="new Date().toDateString()"
-            />
-
-            <PlantBadge
-              title="Zbyt wysoka wilgotność pow."
-              :severity="3"
-              :timestamp="new Date().toDateString()"
-            />
-            <PlantBadge
-              title="Zbyt niska temperatura"
-              :severity="3"
-              :timestamp="new Date().toDateString()"
+              v-for="badge in props.raport.plant_badges"
+              :key="badge.id"
+              :data="badge"
             />
           </div>
         </div>
       </div>
 
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-3" v-if="props.raport">
         <div class="flex items-end justify-between">
           <div>
             <p class="text-sm font-medium text-slate-500">Stan zdrowia</p>
-            <p class="mt-1 text-sm text-slate-400">{{ healthLabel }}</p>
           </div>
           <p class="text-3xl font-semibold leading-none text-slate-900">
-            {{ healthScore
+            {{ props.raport.health_score
             }}<span class="text-base font-medium text-slate-400"> / 10 </span>
           </p>
         </div>
@@ -106,13 +74,17 @@ const formattedPhotoDate = computed(() => {
         <div
           class="grid grid-cols-10 gap-1.5"
           role="img"
-          :aria-label="`Stan zdrowia: ${healthScore} na 10`"
+          :aria-label="`Stan zdrowia: ${props.raport.health_score} na 10`"
         >
           <span
             v-for="score in 10"
             :key="score"
             class="h-2 rounded-full"
-            :class="score <= healthScore ? 'bg-blue-600' : 'bg-slate-200'"
+            :class="
+              score <= props.raport.health_score
+                ? 'bg-blue-600'
+                : 'bg-slate-200'
+            "
           />
         </div>
       </div>
@@ -128,13 +100,6 @@ const formattedPhotoDate = computed(() => {
         class="w-full h-full min-h-64 max-h-128 object-cover"
         @error="onImageError"
       />
-      <div
-        v-if="formattedPhotoDate"
-        class="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-slate-900/70 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm shadow-sm"
-      >
-        <Camera class="size-3.5 text-slate-200" />
-        <span>{{ formattedPhotoDate }}</span>
-      </div>
     </div>
   </article>
 </template>

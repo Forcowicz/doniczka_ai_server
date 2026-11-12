@@ -19,7 +19,7 @@ class GeminiAIAnalyzer(AIAnalyzerProtocol):
 
     SYSTEM_INSTRUCTION = """Jesteś ekspertem botaniki, fizjologii roślin i agronomii, działającym jako silnik analityczny dla inteligentnej doniczki (Smart Plant Pot).
 
-Twoim zadaniem jest przeprowadzenie rzetelnej, wielomodalnej analizy kondycji rośliny domowej na podstawie dostarczonych danych specyfikacji rośliny, dobowych pomiarów telemetrycznych z czujników oraz załączonego zdjęcia (o ile jest dostępne).
+Twoim zadaniem jest przeprowadzenie rzetelnej, wielomodalnej analizy kondycji rośliny domowej na podstawie dostarczonych danych specyfikacji rośliny, dobowych pomiarów telemetrycznych z czujników, aktualnie aktywnych odznak (is_active = true) oraz załączonego zdjęcia (o ile jest dostępne).
 
 ZASADY ANALIZY:
 1. SPECYFIKACJA ROŚLINY:
@@ -45,7 +45,8 @@ ZASADY ANALIZY:
    - summary: Zwięzłe, rzeczowe podsumowanie aktualnej kondycji rośliny w języku polskim.
    - recommendations: Konkretne, praktyczne instrukcje pielęgnacyjne w punktach dla właściciela (np. dawka wody, przestawienie, zraszanie).
 
-6. ODZNAKI (plant_badges):
+6. ODZNAKI (plant_badges) I KONTEKST AKTYWNYCH ODZNAK:
+   - W danych wejściowych otrzymujesz listę aktualnie aktywnych odznak rośliny (is_active = true). Wykorzystaj je, aby zachować ciągłość analizy (np. sprawdzić, czy poprzedni problem nadal występuje, czy ustąpił) oraz nie dublować zbędnie tych samych odznak.
    - Wygeneruj od 2 do 5 krótkich odznak podsumowujących najważniejsze aspekty stanu rośliny.
    - title: Zwięzły tytuł (bezwzględnie MAKSYMALNIE 32 znaki!), np. "Dobre nawodnienie", "Za mało światła", "Zastój wody w glebie".
    - content: Krótkie (1-2 zdania) wyjaśnienie przyczyny nadania odznaki.
@@ -56,12 +57,25 @@ ZASADY ANALIZY:
      * CRITICAL (4) - Stan krytyczny, bezpośrednie zagrożenie dla rośliny (np. przelanie i gnicie korzeni, skrajna susza, niebezpieczna temperatura)."""
 
     def analyze(self, dto: AIRaportRequest) -> AIRaportModelResponse:
+        active_badges_data = [
+            {
+                "id": badge.id,
+                "title": badge.title,
+                "content": badge.content,
+                "severity": f"{badge.severity.name} ({badge.severity.value})",
+                "timestamp": badge.timestamp.isoformat(),
+            }
+            for badge in dto.active_badges
+        ]
+
         prompt_text = (
             "DANE WEJŚCIOWE DO ANALIZY:\n\n"
             "1. SPECYFIKACJA ROŚLINY:\n"
             f"{json.dumps(dto.plant, indent=2, ensure_ascii=False)}\n\n"
             "2. DOBOWE DANE TELEMETRYCZNE (OSTATNIE 24 GODZINY):\n"
-            f"{json.dumps(dto.telemetry_daily, indent=2, ensure_ascii=False)}\n"
+            f"{json.dumps(dto.telemetry_daily, indent=2, ensure_ascii=False)}\n\n"
+            "3. AKTYWNE ODZNAKI ROŚLINY (is_active = true):\n"
+            f"{json.dumps(active_badges_data, indent=2, ensure_ascii=False)}\n"
         )
 
         uploaded_file = None
